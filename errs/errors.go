@@ -8,6 +8,7 @@ const INTERNAL_SERVER_ERROR_MESSAGE = "<script>alert('Internal Server Error');</
 // Internal Errors
 // AUTH
 var (
+	ErrSessionTokenDoesNotExist = errors.New("SESSION TOKEN DOES NOT EXIST")
 	ErrInvalidCredentials       = errors.New("INVALID CREDENTIALS")
 	ErrUsernameAlreadyUsedError = errors.New("EMAIL ALREADY USED")
 	ErrSessionToken             = errors.New("INVALID SESSION TOKEN")
@@ -21,11 +22,6 @@ var (
 // USER
 var (
 	ErrUserEmailDoesNotExist = errors.New("USER EMAIL DOES NOT EXIST")
-)
-
-// AUTH
-var (
-	ErrSessionTokenDoesNotExist = errors.New("SESSION TOKEN DOES NOT EXIST")
 )
 
 // UTILS

@@ -6,6 +6,7 @@ import (
 
 	"github.com/ButterHost69/odoo-hackathon/db"
 	"github.com/ButterHost69/odoo-hackathon/errs"
+	"github.com/ButterHost69/odoo-hackathon/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,14 +20,21 @@ func CreateCompany(ctx *gin.Context) {
 
 	// TODO: Validation
 
-	err := db.InsertNewCompany(company_name, country, "$", email, []db.ManagerInfo{})
+	currency_symbol, err := utils.GetCurrencyUsingCountryName(country)
+	if err != nil {
+		log.Println("[handler.CreateCompany] Error while Getting Currency using Country Name:", err)
+		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+		return
+	}
+
+	company_id, err := db.InsertNewCompany(company_name, country, currency_symbol, email, []db.ManagerInfo{})
 	if err != nil {
 		log.Println("[handler.CreateCompany] Error while Inserting New Company:", err)
 		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
 		return
 	}
 
-	err = db.InsertNewUserAccount(email, company_name+" Admin", "Admin", "", "", 3)
+	err = db.InsertNewUserAccount(email, company_name+" Admin", "Admin", "", "", company_id)
 	if err != nil {
 		log.Println("[handler.CreateCompany] Error while Inserting New User:", err)
 		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
