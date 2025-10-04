@@ -30,14 +30,13 @@ func GetCurrencyUsingCountryName(countryName string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	
 	if resp.StatusCode != http.StatusOK {
 		fmt.Println("[utils.GetCurrencyUsingCountryName] API returned a non-200 status code:  ", resp.StatusCode)
 		return "", fmt.Errorf("API returned a non-200 status code: %d", resp.StatusCode)
 	}
-	
+
 	fmt.Println("[utils.GetCurrencyUsingCountryName] Fetched Data for Country", countryName)
-	
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("[utils.GetCurrencyUsingCountryName] failed to read response body: ", err)
@@ -60,8 +59,8 @@ func GetCurrencyUsingCountryName(countryName string) (string, error) {
 		if strings.EqualFold(country.Name.Common, countryName) {
 			for _, currencyInfo := range country.Currencies {
 				fmt.Printf("[LOG] [utils.GetCurrencyUsingCountryName] Currency For Country %s -: %s\n", countryName, currencyInfo.Symbol)
-				
-					return currencyInfo.Symbol, nil // Return the symbol.
+
+				return currencyInfo.Symbol, nil // Return the symbol.
 			}
 			fmt.Println("[utils.GetCurrencyUsingCountryName] no currency information found for", countryName)
 			return "", fmt.Errorf("no currency information found for %s", countryName)
