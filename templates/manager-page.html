@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html class="h-full bg-gray-50">
+
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Manager Expense Approvals</title>
+</head>
+
+<body class="h-full">
+
+    <div id="main-content-div" class="flex-1 flex flex-col overflow-hidden">
+        <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h1 class="text-2xl font-semibold text-gray-900">Manager name - Expense Approvals</h1>
+            <button onclick="logout()"
+                class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+                Logout
+            </button>
+        </div>
+
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Approval Subject
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Request Owner</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Category</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Request Status</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Total Amount</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="expenses-table-body">
+                            <tr id="expense-1" class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">Client Dinner
+                                    Meeting - Q4 Planning</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Lindsay Walton</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Meals & Entertainment</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span
+                                        class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">Pending
+                                        Approval</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">$255.50</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button onclick="handleApproval('expense-1', 'Accepted')"
+                                        class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
+                                    <button onclick="handleApproval('expense-1', 'Rejected')"
+                                        class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
+                                </td>
+                            </tr>
+                            <tr id="expense-2" class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">Software
+                                    Subscription - Figma</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Michael Chen</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Software</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span
+                                        class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">Pending
+                                        Approval</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">$180.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button onclick="handleApproval('expense-2', 'Accepted')"
+                                        class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
+                                    <button onclick="handleApproval('expense-2', 'Rejected')"
+                                        class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
+                                </td>
+                            </tr>
+                            <tr id="expense-3" class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">Team Travel to
+                                    New York Summit</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Alex Rodriguez</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Travel</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span
+                                        class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">Pending
+                                        Approval</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">$1,450.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button onclick="handleApproval('expense-3', 'Accepted')"
+                                        class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
+                                    <button onclick="handleApproval('expense-3', 'Rejected')"
+                                        class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
+                                </td>
+                            </tr>
+                            <tr id="expense-4" class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">Office
+                                    Supplies (Paper, Pens)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Sophie Taylor</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Office Supplies</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span
+                                        class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">Pending
+                                        Approval</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">$85.25</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button onclick="handleApproval('expense-4', 'Accepted')"
+                                        class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
+                                    <button onclick="handleApproval('expense-4', 'Rejected')"
+                                        class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        /**
+         * Handles the approval action (Accept or Reject) for an expense.
+         */
+        function handleApproval(expenseId, status) {
+            const row = document.getElementById(expenseId);
+            if (!row) return;
+
+            const statusCell = row.cells[3];
+            const actionCell = row.cells[5];
+
+            actionCell.innerHTML = ''; // Clear the action buttons
+
+            if (status === 'Accepted') {
+                statusCell.innerHTML = `<span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-green-100 text-green-800">Approved</span>`;
+                alert(`Expense ${expenseId} has been approved.`);
+            } else if (status === 'Rejected') {
+                statusCell.innerHTML = `<span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-red-100 text-red-800">Rejected</span>`;
+                alert(`Expense ${expenseId} has been rejected.`);
+            }
+        }
+
+        /**
+         * Handles the logout action.
+         */
+        function logout() {
+            console.log('User clicked logout.');
+            alert('You have been logged out.');
+            // In a real application, you would redirect to a login page:
+            // window.location.href = '/login.html';
+        }
+    </script>
+
+</body>
+
+</html>

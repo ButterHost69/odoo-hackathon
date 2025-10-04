@@ -94,7 +94,9 @@ func Login(ctx *gin.Context) {
 
 	if user.Role == "admin" {
 		RenderAdminPage(ctx, users)
+	} else if user.Role == "manager" {
+		RenderManagerPage(ctx)
 	} else {
-		RenderUserPage(ctx)
+		RenderEmployeePage(ctx)
 	}
 }

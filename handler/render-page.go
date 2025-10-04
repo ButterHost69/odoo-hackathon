@@ -69,13 +69,24 @@ func RenderAdminPage(ctx *gin.Context, users []db.User) {
 	}
 }
 
-func RenderUserPage(ctx *gin.Context) {
+func RenderEmployeePage(ctx *gin.Context) {
 	ctx.Header("Content-Type", "text/html")
 
 	tmpl := template.Must(template.ParseFiles("./templates/user-page.html"))
 	err := tmpl.Execute(ctx.Writer, nil)
 	if err != nil {
 		log.Println("[handler.RenderUserPage] Error while parsing user-page.html: ", err)
+		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+	}
+}
+
+func RenderManagerPage(ctx *gin.Context) {
+	ctx.Header("Content-Type", "text/html")
+
+	tmpl := template.Must(template.ParseFiles("./templates/manager-page.html"))
+	err := tmpl.Execute(ctx.Writer, nil)
+	if err != nil {
+		log.Println("[handler.RenderUserPage] Error while parsing manager-page.html: ", err)
 		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
 	}
 }
