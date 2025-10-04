@@ -98,7 +98,7 @@ func Login(ctx *gin.Context) {
 	case "admin":
 		RenderAdminPage(ctx, users)
 	case "manager":
-		RenderManagerPage(ctx, "Dummy@email.com")
+		RenderManagerPage(ctx, email)
 	default:
 		RenderEmployeePage(ctx)
 	}
