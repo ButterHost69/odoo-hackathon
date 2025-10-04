@@ -3,11 +3,36 @@
 
 <head>
     <script src="https://cdn.tailwindcss.com"></script>
+    <title>Admin - User Approval Rule</title>
     <style>
-        /* Small style for the searchable input inside the form */
         .combobox-input:focus {
             outline: none;
             box-shadow: none;
+        }
+
+        /* Style for the draggable list item */
+        .approver-item {
+            cursor: grab;
+        }
+
+        .approver-item.dragging {
+            opacity: 0.5;
+            border: 1px dashed #4f46e5;
+        }
+
+        /* Style for the inline form fields */
+        .inline-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .inline-input:focus {
+            border-color: #4f46e5;
+            outline: none;
+            box-shadow: 0 0 0 1px #4f46e5;
         }
     </style>
 </head>
@@ -19,10 +44,10 @@
             <div class="flex items-center p-4 border-b border-gray-400 bg-white">
                 <span class="ml-3 text-lg font-semibold text-gray-800">[Google] Admin</span>
             </div>
-
             <div class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-                <a href="#"
-                    class="flex items-center px-3 py-2 bg-indigo-100 text-indigo-700 rounded-md transition-colors font-semibold">
+                <a href="#" onclick="loadInitialView(event)"
+                    class="flex items-center px-3 py-2 bg-indigo-100 text-indigo-700 rounded-md transition-colors font-semibold view-link"
+                    id="users-list-link">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
@@ -30,387 +55,623 @@
                     </svg>
                     Users
                 </a>
-
                 <a href="#"
-                    class="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-                        </path>
-                    </svg>
-                    All Expenses
-                </a>
-
+                    class="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-indigo-50 hover:text-indigo-700 transition-colors">All
+                    Expenses</a>
                 <a href="#"
-                    class="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                        </path>
-                    </svg>
-                    Reports
-                </a>
-
+                    class="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-indigo-50 hover:text-indigo-700 transition-colors">Reports</a>
                 <a href="#"
-                    class="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                        </path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    Settings
-                </a>
+                    class="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-indigo-50 hover:text-indigo-700 transition-colors">Settings</a>
             </div>
-
             <div class="px-4 py-4 border-t border-gray-200">
                 <a href="#"
-                    class="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-red-50 hover:text-red-700 transition-colors">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                        </path>
-                    </svg>
-                    Logout
-                </a>
+                    class="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-red-50 hover:text-red-700 transition-colors">Logout</a>
             </div>
         </div>
 
         <div id="main-content-div" class="flex-1 flex flex-col overflow-hidden">
-            <div class="bg-white border-b border-gray-200 px-6 py-4">
-                <h1 class="text-2xl font-semibold text-gray-900">Users</h1>
-            </div>
+        </div>
+    </div>
 
-            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
-                <div class="max-w-7xl mx-auto">
-                    <div class="mb-6 flex justify-between items-start">
-                        <button onclick="showNewUserForm()"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors">
-                            Add user +
-                        </button>
-                    </div>
+    <script>
+        // --- MOCK DATA ---
+        const MOCK_USERS = [
+            { id: 'marc', name: 'marc', role: 'User', manager: 'sarah', email: 'marc@example.com' },
+            { id: 'lindsay-walton', name: 'Lindsay Walton', role: 'User', manager: 'John Smith', email: 'lindsay.walton@example.com' },
+        ];
 
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">User</th>
-                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
-                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Manager</th>
-                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
-                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200" id="users-table-body">
-                                {{ range .}}
-                                <tr class="hover:bg-blue-50 cursor-pointer transition-colors"
-                                    onclick="openUserDetails('{{ .Name }}')">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ .Name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ .Role }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ .ManagerName }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        {{ .Email }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <button
-                                            onclick="event.stopPropagation(); sendPassword('lindsay.walton@example.com')"
-                                            class="text-indigo-600 hover:text-indigo-900 font-medium">Send
-                                            Password</button>
-                                    </td>
-                                </tr>
-                                {{ end }}
-                                <!-- <tr class="hover:bg-blue-50 cursor-pointer transition-colors"
-                                    onclick="openUserDetails('michael-chen')">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Michael Chen</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Role</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Sarah Johnson</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        michael.chen@example.com</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <button
-                                            onclick="event.stopPropagation(); sendPassword('michael.chen@example.com')"
-                                            class="text-indigo-600 hover:text-indigo-900 font-medium">Send
-                                            Password</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-blue-50 cursor-pointer transition-colors"
-                                    onclick="openUserDetails('emily-davis')">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Emily Davis</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Manager</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">David Wilson</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        emily.davis@example.com</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <button
-                                            onclick="event.stopPropagation(); sendPassword('emily.davis@example.com')"
-                                            class="text-indigo-600 hover:text-indigo-900 font-medium">Send
-                                            Password</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-blue-50 cursor-pointer transition-colors"
-                                    onclick="openUserDetails('alex-rodriguez')">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Alex Rodriguez</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Email</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Lisa Brown</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        alex.rodriguez@example.com</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <button
-                                            onclick="event.stopPropagation(); sendPassword('alex.rodriguez@example.com')"
-                                            class="text-indigo-600 hover:text-indigo-900 font-medium">Send
-                                            Password</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-blue-50 cursor-pointer transition-colors"
-                                    onclick="openUserDetails('sophie-taylor')">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Sophie Taylor</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">User</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Mark Anderson</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        sophie.taylor@example.com</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <button
-                                            onclick="event.stopPropagation(); sendPassword('sophie.taylor@example.com')"
-                                            class="text-indigo-600 hover:text-indigo-900 font-medium">Send
-                                            Password</button>
-                                    </td>
-                                </tr> -->
-                            </tbody>
-                        </table>
-                    </div>
+        const MANAGER_LIST = ['sarah', 'John Smith', 'David Wilson', 'Lisa Brown', 'Alex Johnson', 'Maria Garcia'];
+        const APPROVER_LIST = [
+            { id: 'john', name: 'John', required: true },
+            { id: 'mitchell', name: 'Mitchell', required: false },
+            { id: 'andreas', name: 'Andreas', required: false },
+        ];
 
-                    <div id="new-user-row" class="hidden">
-                        <form id="new-user-form" onsubmit="handleFormSubmit(event)" onreset="hideNewUserForm()" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Add New User</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div>
-                                    <label for="new-user-name" class="block text-sm font-medium text-gray-700 mb-1">User Name *</label>
-                                    <input type="text" id="new-user-name" name="name"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        placeholder="Enter user name" required>
+        let currentUserList = [...MOCK_USERS];
+        let currentApprovers = [...APPROVER_LIST];
+
+        // --- GLOBAL ELEMENTS (for the Approval Rule form) ---
+        let managerInputField_Rule, managerOptionsList_Rule, managerFilterInput_Rule, managerList_Rule, comboboxContainer_Rule;
+
+        // --- GLOBAL ELEMENTS (for the New User form) ---
+        let managerInputField_New, managerOptionsList_New, managerFilterInput_New, managerList_New, comboboxContainer_New;
+
+
+        // ----------------------------------------------------------------------
+        // --- VIEW TEMPLATES ---
+        // ----------------------------------------------------------------------
+
+        function createUserRowHTML(user) {
+            // Simulate the click leading to the new form
+            return `
+                <tr class="hover:bg-blue-50 cursor-pointer transition-colors" onclick="openApprovalRuleForm('${user.id}')">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${user.role}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${user.manager}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${user.email}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <button
+                            onclick="event.stopPropagation(); alert('Simulating Send Password')"
+                            class="text-indigo-600 hover:text-indigo-900 font-medium">Send Password</button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        /**
+         * Generates the HTML for the inline 'New User' form row with the combobox.
+         */
+        function createNewUserFormRowHTML() {
+            // NOTE: The ID "new-user-form-row-content" is used to identify the content to show/hide/insert
+            return `
+                <tr id="new-user-form-row-content" class="bg-indigo-50 border-t border-indigo-200">
+                    <td class="px-6 py-2">
+                        <input type="text" name="new_name" placeholder="Name (Mandatory)" required class="inline-input text-sm text-gray-900">
+                    </td>
+                    <td class="px-6 py-2">
+                        <input type="text" name="new_role" value="User" placeholder="Role (Mandatory)" required class="inline-input text-sm text-gray-600">
+                    </td>
+                    
+                    <td class="px-6 py-2">
+                        <div class="relative" id="manager-combobox-container-new">
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    id="manager-input-new"
+                                    name="new_manager"
+                                    placeholder="Manager (Mandatory)"
+                                    required
+                                    class="combobox-input inline-input text-sm text-gray-600 pr-10 bg-white cursor-pointer focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    onclick="toggleManagerDropdownNew(event)"
+                                />
+                                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-2" onclick="toggleManagerDropdownNew(event)">
+                                    <svg class="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="manager-options-list-new" class="absolute z-30 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
+                                <div class="p-2 sticky top-0 bg-white border-b border-gray-200 z-40">
+                                    <input type="text" placeholder="Filter list..." id="manager-filter-input-new"
+                                        class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                                        oninput="filterManagersNew(this.value)">
                                 </div>
-                                <div>
-                                    <label for="new-user-role" class="block text-sm font-medium text-gray-700 mb-1">Role *</label>
-                                    <select id="new-user-role" name="role"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        required>
-                                        <option value="">Select Role</option>
-                                        <option value="Employee">Employee</option>
-                                        <option value="Manager">Manager</option>
-                                    </select>
-                                </div>
+                                <ul id="manager-list-new" class="py-1 text-sm text-gray-700 divide-y divide-gray-100">
+                                    ${getManagerOptionsHTML_New('', '')}
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                    
+                    <td class="px-6 py-2">
+                        <input type="email" name="new_email" placeholder="Email (Mandatory)" required class="inline-input text-sm text-gray-600">
+                    </td>
+                    <td class="px-6 py-2 whitespace-nowrap text-sm flex space-x-2">
+                        <button type="button" onclick="toggleNewUserForm(event)"
+                            class="text-indigo-600 hover:text-indigo-800 font-medium py-1 px-3 transition-colors">Cancel</button>
+                        <button type="submit"
+                            class="text-white bg-indigo-600 hover:bg-indigo-700 font-medium py-1 px-3 rounded-md shadow-sm transition-colors">Save</button>
+                    </td>
+                </tr>
+            `;
+        }
 
-                                <div class="relative" id="manager-combobox-container">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Manager *</label>
+        function createUsersListViewHTML(users) {
+            const rowsHTML = users.map(createUserRowHTML).join('');
+
+            return `
+                <div class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                    <h1 class="text-2xl font-semibold text-gray-900">Users List</h1>
+                    <button onclick="toggleNewUserForm(event)" id="new-user-button"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        New User +
+                    </button>
+                </div>
+
+                <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                            <form id="new-user-form" onsubmit="handleNewUserSubmit(event)">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">User</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Manager</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200" id="users-table-body">
+                                        ${rowsHTML}
+                                        <tr id="new-user-form-placeholder"></tr>
+                                    </tbody>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                </main>
+            `;
+        }
+
+        // Helper to generate manager options HTML
+        function getManagerOptionsHTML(searchTerm = '', selectedManager = '') {
+            const filter = searchTerm.toLowerCase();
+            return MANAGER_LIST.filter(manager => manager.toLowerCase().includes(filter)).map(manager => {
+                const activeClass = manager.toLowerCase() === selectedManager.toLowerCase() ? 'bg-indigo-100 text-indigo-700 font-semibold' : '';
+                return `<li class="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700 ${activeClass}" onclick="selectManager(this)">${manager}</li>`;
+            }).join('');
+        }
+
+        // Helper to generate manager options HTML for NEW USER FORM (uses a different select function)
+        function getManagerOptionsHTML_New(searchTerm = '', selectedManager = '') {
+            const filter = searchTerm.toLowerCase();
+            return MANAGER_LIST.filter(manager => manager.toLowerCase().includes(filter)).map(manager => {
+                const activeClass = manager.toLowerCase() === selectedManager.toLowerCase() ? 'bg-indigo-100 text-indigo-700 font-semibold' : '';
+                return `<li class="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700 ${activeClass}" onclick="selectManagerNew(this)">${manager}</li>`;
+            }).join('');
+        }
+
+        /**
+         * Creates the HTML for the detailed Approval Rule form. (Unchanged for this request)
+         */
+        function createApprovalRuleFormHTML(user, approvers) {
+            // ... (rest of the approval rule form HTML remains the same)
+            const managerOptionsHTML = getManagerOptionsHTML('', user.manager); // Using the general one for the Rule form
+
+            const approverItemsHTML = approvers.map((approver, index) => `
+                <li class="approver-item p-3 border-b border-gray-200 flex justify-between items-center bg-white hover:bg-gray-50 transition-colors"
+                    draggable="true" 
+                    data-approver-id="${approver.id}"
+                    data-approver-name="${approver.name}">
+                    
+                    <span class="font-medium text-gray-700 w-10 text-center">${index + 1}</span>
+                    <span class="flex-1 ml-4 text-gray-900">${approver.name}</span>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="required-${approver.id}" 
+                            data-approver-required-checkbox 
+                            ${approver.required ? 'checked' : ''}
+                            class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <label for="required-${approver.id}" class="text-sm font-medium text-gray-700">Required</label>
+                    </div>
+                    <svg class="w-5 h-5 ml-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </li>
+            `).join('');
+
+            return `
+                <div class="bg-white border-b border-gray-200 px-6 py-4">
+                    <button onclick="loadInitialView(event)" 
+                        class="mr-4 text-gray-500 hover:text-gray-700 transition-colors">
+                        <svg class="w-5 h-5 inline-block align-text-bottom" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <span class="ml-1 text-sm font-medium">Back to Users</span>
+                    </button>
+                    <h1 class="text-2xl font-semibold text-gray-900 inline-block align-bottom">Approval Rule for ${user.name}</h1>
+                </div>
+
+                <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                    <form id="approval-rule-form" onsubmit="handleApprovalRuleSubmit(event)" class="max-w-6xl mx-auto grid grid-cols-2 gap-8">
+                        
+                        <div class="bg-white shadow-lg rounded-lg p-6 space-y-6">
+                            <h2 class="text-xl font-semibold text-gray-900 border-b pb-3">User Details</h2>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
+                                    <input type="text" value="${user.name}" readonly class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md">
+                                </div>
+                                
+                                <div class="relative" id="manager-combobox-container-rule">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Manager</label>
                                     <div class="relative">
                                         <input
                                             type="text"
-                                            id="new-user-manager"
+                                            id="manager-input-rule"
                                             name="manager"
+                                            value="${user.manager}"
                                             placeholder="Search and select manager"
                                             required
                                             readonly
                                             class="combobox-input w-full px-3 py-2 border border-gray-300 rounded-md pr-10 bg-white cursor-pointer focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                            onclick="toggleManagerDropdown(event)"
+                                            onclick="toggleManagerDropdownRule(event)"
                                         />
-                                        <button
-                                            type="button"
-                                            id="manager-dropdown-toggle"
-                                            class="absolute inset-y-0 right-0 flex items-center pr-2"
-                                            onclick="toggleManagerDropdown(event)"
-                                        >
+                                        <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-2" onclick="toggleManagerDropdownRule(event)">
                                             <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                                 <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                                             </svg>
                                         </button>
                                     </div>
-                                    
-                                    <div id="manager-options-list" class="absolute z-30 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
+                                    <div id="manager-options-list-rule" class="absolute z-30 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
                                         <div class="p-2 sticky top-0 bg-white border-b border-gray-200 z-40">
-                                            <input
-                                                type="text"
-                                                placeholder="Filter list..."
-                                                id="manager-filter-input"
+                                            <input type="text" placeholder="Filter list..." id="manager-filter-input-rule"
                                                 class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                                oninput="filterManagers(this.value)"
-                                            >
+                                                oninput="filterManagersRule(this.value)">
                                         </div>
-                                        <ul id="manager-list" class="py-1 text-sm text-gray-700 divide-y divide-gray-100">
-                                            <li class="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700" onclick="selectManager(this)">John Smith</li>
-                                            <li class="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700" onclick="selectManager(this)">Sarah Johnson</li>
-                                            <li class="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700" onclick="selectManager(this)">David Wilson</li>
-                                            <li class="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700" onclick="selectManager(this)">Lisa Brown</li>
-                                            <li class="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700" onclick="selectManager(this)">Mark Anderson</li>
-                                            <li class="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700" onclick="selectManager(this)">Jane Doe</li>
-                                            <li class="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700" onclick="selectManager(this)">Peter Jones</li>
+                                        <ul id="manager-list-rule" class="py-1 text-sm text-gray-700 divide-y divide-gray-100">
+                                            ${managerOptionsHTML}
                                         </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white shadow-lg rounded-lg p-6 space-y-6">
+                            <h2 class="text-xl font-semibold text-gray-900 border-b pb-3">Approvers Setup</h2>
+
+                            <div class="flex items-start">
+                                <div class="flex items-center h-5 mt-1">
+                                    <input id="is-manager-approver" name="is_manager_approver" type="checkbox" checked
+                                        class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                </div>
+                                <div class="ml-3 text-sm">
+                                    <label for="is-manager-approver" class="font-medium text-gray-700">Is manager an approver?</label>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 bg-green-100 border border-green-400 rounded-md text-sm text-green-800 font-semibold">
+                                If this field is checked, then by default the approve request would go to his/her manager first, before going to other approvers.
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center px-3">
+                                    <span class="text-sm font-semibold text-gray-700">User</span>
+                                    <span class="text-sm font-semibold text-gray-700">Required</span>
+                                </div>
+                                <ul id="approvers-list" class="bg-gray-50 border border-gray-200 rounded-md divide-y divide-gray-200">
+                                    ${approverItemsHTML}
+                                </ul>
+                            </div>
+
+                            <div class="space-y-4 pt-4 border-t border-gray-200">
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5 mt-1">
+                                        <input id="approver-sequence" name="approver_sequence" type="checkbox" 
+                                            class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="approver-sequence" class="font-medium text-gray-700">Approvers Sequence</label>
+                                        <p class="text-gray-500">If this field is ticked true then the above mentioned sequence matters, that is first the request goes to John; if he approves/rejects then only request goes to mitchell and so on.</p>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label for="new-user-email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                                    <input type="email" id="new-user-email" name="email"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        placeholder="Enter email address" required>
+                                    <label for="min-approval-percentage" class="block text-sm font-medium text-gray-700 mb-1">Minimum Approval percentage</label>
+                                    <div class="relative w-24">
+                                        <input type="number" id="min-approval-percentage" name="min_approval_percentage" min="0" max="100" value="100"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                        <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500">%</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mt-4 flex gap-3">
-                                <button type="submit"
-                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors">
-                                    Save
-                                </button>
-                                <button type="reset"
-                                    class="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors">
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
+                        </div>
 
-    <script>
-        // --- Manager Dropdown Elements ---
-        const managerInputField = document.getElementById('new-user-manager');
-        const managerOptionsList = document.getElementById('manager-options-list');
-        const managerFilterInput = document.getElementById('manager-filter-input');
-        const managerList = document.getElementById('manager-list');
-        const comboboxContainer = document.getElementById('manager-combobox-container');
-        const usersTableBody = document.getElementById('users-table-body');
-        const newUserRow = document.getElementById('new-user-row');
-        const newUserForm = document.getElementById('new-user-form');
-
+                        <div class="col-span-2 mt-4 flex justify-end">
+                            <button type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded-lg transition-colors shadow-md">
+                                Save Approval Rule
+                            </button>
+                        </div>
+                    </form>
+                </main>
+            `;
+        }
 
         // ----------------------------------------------------------------------
-        // --- DROPDOWN FUNCTIONS (UNCHANGED) ---
+        // --- CORE LOGIC AND NAVIGATION ---
         // ----------------------------------------------------------------------
 
-        function toggleManagerDropdown(event) {
-            if (event) event.stopPropagation();
-            const isHidden = managerOptionsList.classList.contains('hidden');
-            if (isHidden) {
-                managerOptionsList.classList.remove('hidden');
-                managerFilterInput.focus();
+        function loadInitialView(event) {
+            if (event) event.preventDefault();
+            const mainContentDiv = document.getElementById('main-content-div');
+            mainContentDiv.innerHTML = createUsersListViewHTML(currentUserList);
+        }
+
+        // Flag to track the state of the new user form
+        let isNewUserFormVisible = false;
+
+        /**
+         * Toggles the inline 'New User' form visibility and position.
+         */
+        function toggleNewUserForm(event) {
+            if (event) event.preventDefault();
+            const tableBody = document.getElementById('users-table-body');
+            const placeholder = document.getElementById('new-user-form-placeholder');
+            const button = document.getElementById('new-user-button');
+
+            if (!tableBody) return;
+
+            if (!isNewUserFormVisible) {
+                // Show form: Replace the empty placeholder with the form content
+                const placeholderElement = document.getElementById('new-user-form-placeholder');
+                if (placeholderElement) {
+                    placeholderElement.outerHTML = createNewUserFormRowHTML();
+
+                    // 1. Initialize New User Form Combobox Globals
+                    managerInputField_New = document.getElementById('manager-input-new');
+                    managerOptionsList_New = document.getElementById('manager-options-list-new');
+                    managerFilterInput_New = document.getElementById('manager-filter-input-new');
+                    managerList_New = document.getElementById('manager-list-new');
+                    comboboxContainer_New = document.getElementById('manager-combobox-container-new');
+
+                    // 2. Update New User Button Text
+                    button.textContent = 'Cancel Add';
+                    button.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                    button.classList.add('bg-red-600', 'hover:bg-red-700');
+                    isNewUserFormVisible = true;
+                }
             } else {
-                managerOptionsList.classList.add('hidden');
-                managerFilterInput.value = '';
-                filterManagers('');
+                // Hide form: Replace the form content row with the empty placeholder
+                const formContent = document.getElementById('new-user-form-row-content');
+                if (formContent) {
+                    formContent.outerHTML = '<tr id="new-user-form-placeholder"></tr>';
+                }
+
+                // Reset New User Button Text
+                button.textContent = 'New User +';
+                button.classList.remove('bg-red-600', 'hover:bg-red-700');
+                button.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                isNewUserFormVisible = false;
+
+                // Reset New User Combobox Globals
+                managerInputField_New = managerOptionsList_New = managerFilterInput_New = managerList_New = comboboxContainer_New = null;
             }
         }
 
-        function filterManagers(searchTerm) {
-            const filter = searchTerm.toLowerCase();
-            const items = managerList.children;
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(filter) ? 'block' : 'none';
+        /**
+         * Handles the submission of the inline 'New User' form.
+         */
+        function handleNewUserSubmit(event) {
+            event.preventDefault();
+            const form = document.getElementById('new-user-form');
+
+            // Check if the form row is visible (i.e., we are submitting the new user form)
+            const formRow = document.getElementById('new-user-form-row-content');
+            if (!formRow) { return; }
+
+            const newUserData = {
+                id: form.elements['new_name'].value.toLowerCase().replace(/\s+/g, '-'), // Generate a simple ID
+                name: form.elements['new_name'].value,
+                role: form.elements['new_role'].value,
+                manager: form.elements['new_manager'].value,
+                email: form.elements['new_email'].value,
+            };
+
+            // Basic validation
+            if (!newUserData.name || !newUserData.role || !newUserData.manager || !newUserData.email) {
+                alert('All new user fields are mandatory!');
+                return;
             }
+
+            // Check if user already exists (by name, for simplicity)
+            if (currentUserList.some(user => user.name.toLowerCase() === newUserData.name.toLowerCase())) {
+                alert(`User with name '${newUserData.name}' already exists.`);
+                return;
+            }
+
+            // Simulate saving the new user
+            currentUserList.push(newUserData);
+            console.log("Simulating POST request to /api/add-new-user");
+            console.log("New User Payload:", newUserData);
+
+            // Refresh the view to show the new user and hide the form
+            alert(`New user '${newUserData.name}' added successfully!`);
+
+            // Use toggleNewUserForm to correctly hide the form and reset the button
+            toggleNewUserForm();
+            loadInitialView(); // Reload the list to show the new user at the bottom
+        }
+
+
+        function openApprovalRuleForm(userId) {
+            const user = currentUserList.find(u => u.id === userId);
+            if (!user) {
+                alert('User not found!');
+                return;
+            }
+
+            const mainContentDiv = document.getElementById('main-content-div');
+            mainContentDiv.innerHTML = createApprovalRuleFormHTML(user, currentApprovers);
+
+            // Re-initialize Approval Rule Combobox elements
+            managerInputField_Rule = document.getElementById('manager-input-rule');
+            managerOptionsList_Rule = document.getElementById('manager-options-list-rule');
+            managerFilterInput_Rule = document.getElementById('manager-filter-input-rule');
+            managerList_Rule = document.getElementById('manager-list-rule');
+            comboboxContainer_Rule = document.getElementById('manager-combobox-container-rule');
+
+            initDragAndDrop();
+        }
+
+        function handleApprovalRuleSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+
+            // ... (submission logic remains the same)
+            const approversListElement = document.getElementById('approvers-list');
+            const approverItems = Array.from(approversListElement.children);
+            const finalApprovers = approverItems.map(item => {
+                const id = item.getAttribute('data-approver-id');
+                const name = item.getAttribute('data-approver-name');
+                const isRequired = item.querySelector(`[data-approver-required-checkbox]`).checked;
+                return { id, name, required: isRequired };
+            });
+
+            const formData = {
+                userId: currentUserList.find(u => u.name === form.querySelector('input[readonly]').value)?.id || MOCK_USERS[0].id,
+                manager: form.elements['manager'].value,
+                isManagerApprover: form.elements['is_manager_approver'].checked,
+                approvers: finalApprovers,
+                sequenceMatters: form.elements['approver_sequence'].checked,
+                minApprovalPercentage: form.elements['min_approval_percentage'].value,
+            };
+
+            currentApprovers = finalApprovers;
+            console.log("Simulating POST request to /api/save-approval-rule");
+            console.log("Payload:", formData);
+
+            alert(`Approval rule saved successfully for ${formData.userId}! Check console for payload.`);
+            loadInitialView();
+        }
+
+        // ----------------------------------------------------------------------
+        // --- COMBOBOX FUNCTIONS (Approval Rule Form) ---
+        // ----------------------------------------------------------------------
+
+        function toggleManagerDropdownRule(event) {
+            if (event) event.stopPropagation();
+            if (!managerOptionsList_Rule) return;
+
+            const isHidden = managerOptionsList_Rule.classList.contains('hidden');
+            if (isHidden) {
+                managerOptionsList_Rule.classList.remove('hidden');
+                managerFilterInput_Rule.focus();
+            } else {
+                managerOptionsList_Rule.classList.add('hidden');
+                managerFilterInput_Rule.value = '';
+                filterManagersRule('');
+            }
+        }
+
+        function filterManagersRule(searchTerm) {
+            if (!managerList_Rule || !managerInputField_Rule) return;
+            managerList_Rule.innerHTML = getManagerOptionsHTML(searchTerm, managerInputField_Rule.value);
         }
 
         function selectManager(selectedElement) {
+            if (!managerInputField_Rule) return;
             const selectedName = selectedElement.textContent;
-            managerInputField.value = selectedName;
-            toggleManagerDropdown();
+            managerInputField_Rule.value = selectedName;
+            toggleManagerDropdownRule();
         }
 
-        // --- Global click handler to close the dropdown when clicking outside ---
-        document.addEventListener('click', function(event) {
-            if (comboboxContainer && !comboboxContainer.contains(event.target)) {
-                if (!managerOptionsList.classList.contains('hidden')) {
-                    managerOptionsList.classList.add('hidden');
-                    managerFilterInput.value = '';
-                    filterManagers('');
+        // ----------------------------------------------------------------------
+        // --- COMBOBOX FUNCTIONS (New User Form) ---
+        // ----------------------------------------------------------------------
+
+        function toggleManagerDropdownNew(event) {
+            if (event) event.stopPropagation();
+            if (!managerOptionsList_New) return;
+
+            const isHidden = managerOptionsList_New.classList.contains('hidden');
+            if (isHidden) {
+                managerOptionsList_New.classList.remove('hidden');
+                managerFilterInput_New.focus();
+            } else {
+                managerOptionsList_New.classList.add('hidden');
+                managerFilterInput_New.value = '';
+                filterManagersNew('');
+            }
+        }
+
+        function filterManagersNew(searchTerm) {
+            if (!managerList_New || !managerInputField_New) return;
+            managerList_New.innerHTML = getManagerOptionsHTML_New(searchTerm, managerInputField_New.value);
+        }
+
+        function selectManagerNew(selectedElement) {
+            if (!managerInputField_New) return;
+            const selectedName = selectedElement.textContent;
+            managerInputField_New.value = selectedName;
+            toggleManagerDropdownNew();
+        }
+
+
+        // ----------------------------------------------------------------------
+        // --- GENERAL EVENT HANDLERS ---
+        // ----------------------------------------------------------------------
+
+        // Universal click handler to close open comboboxes
+        document.addEventListener('click', function (event) {
+            // Check for Approval Rule Combobox
+            if (comboboxContainer_Rule && !comboboxContainer_Rule.contains(event.target)) {
+                if (managerOptionsList_Rule && !managerOptionsList_Rule.classList.contains('hidden')) {
+                    managerOptionsList_Rule.classList.add('hidden');
+                    managerFilterInput_Rule.value = '';
+                    filterManagersRule('');
+                }
+            }
+            // Check for New User Combobox
+            if (comboboxContainer_New && !comboboxContainer_New.contains(event.target)) {
+                if (managerOptionsList_New && !managerOptionsList_New.classList.contains('hidden')) {
+                    managerOptionsList_New.classList.add('hidden');
+                    managerFilterInput_New.value = '';
+                    filterManagersNew('');
                 }
             }
         });
 
         // ----------------------------------------------------------------------
-        // --- FORM AND UTILITY FUNCTIONS (MODIFIED) ---
+        // --- DRAG AND DROP IMPLEMENTATION (Unchanged) ---
         // ----------------------------------------------------------------------
 
-        // Function to show the new user form
-        function showNewUserForm() {
-            newUserRow.classList.remove('hidden');
-            // Scroll to the new user form
-            newUserRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        function initDragAndDrop() {
+            const list = document.getElementById('approvers-list');
+            if (!list) return;
 
-        // Function to hide the new user form (called by form reset)
-        function hideNewUserForm() {
-             // Delaying the hide allows the form reset (clearing inputs) to happen first
-            setTimeout(() => {
-                newUserRow.classList.add('hidden');
-                // Ensure dropdown is closed and reset
-                managerOptionsList.classList.add('hidden');
-                managerFilterInput.value = '';
-                filterManagers('');
-            }, 0);
-        }
+            let draggingItem = null;
 
-        /**
-         * Handles the form submission (Save button click).
-         */
-        function handleFormSubmit(event) {
-            event.preventDefault(); // Stop the default form submission/page reload
+            list.addEventListener('dragstart', (e) => {
+                draggingItem = e.target.closest('.approver-item');
+                if (draggingItem) {
+                    draggingItem.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', draggingItem.id);
+                }
+            });
 
-            const name = document.getElementById('new-user-name').value;
-            const role = document.getElementById('new-user-role').value;
-            const manager = managerInputField.value; 
-            const email = document.getElementById('new-user-email').value;
-            
-            // Note: HTML 'required' attributes handle basic validation, 
-            // but we keep the alert for user feedback.
-            if (!name || !role || !manager || !email) {
-                 // Should be caught by HTML validation, but good backup
-                alert('Please fill in all required fields.');
-                return;
+            list.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const targetItem = e.target.closest('.approver-item');
+                if (targetItem && targetItem !== draggingItem) {
+                    const targetRect = targetItem.getBoundingClientRect();
+                    const next = (e.clientY > targetRect.top + targetRect.height / 2);
+                    list.insertBefore(draggingItem, next ? targetItem.nextSibling : targetItem);
+                }
+            });
+
+            list.addEventListener('dragend', () => {
+                if (draggingItem) {
+                    draggingItem.classList.remove('dragging');
+                    draggingItem = null;
+                    updateApproverNumbers();
+                }
+            });
+
+            function updateApproverNumbers() {
+                Array.from(list.children).forEach((item, index) => {
+                    const numberSpan = item.querySelector('span:first-child');
+                    if (numberSpan) {
+                        numberSpan.textContent = index + 1;
+                    }
+                });
             }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                alert('Please enter a valid email address.');
-                return;
-            }
-
-            // --- Logic to create and append the new user row ---
-            const userId = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
-
-            const newRow = document.createElement('tr');
-            newRow.className = 'hover:bg-blue-50 cursor-pointer transition-colors';
-            newRow.onclick = () => openUserDetails(userId);
-
-            newRow.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${name}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${role}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${manager}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${email}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <button onclick="event.stopPropagation(); sendPassword('${email}')" class="text-indigo-600 hover:text-indigo-900 font-medium">Send Password</button>
-                </td>
-            `;
-
-            // Insert the new row at the beginning of the table
-            usersTableBody.insertBefore(newRow, usersTableBody.firstChild);
-
-            // Hide the form and reset fields
-            newUserForm.reset(); // This triggers the hideNewUserForm via onreset="hideNewUserForm()"
-
-            alert(`User "${name}" has been added successfully!`);
-        }
-        
-        // Existing utility functions
-        function openUserDetails(userId) {
-            console.log('Opening user details for:', userId);
-            alert(`Opening details for user: ${userId}`);
         }
 
-        function sendPassword(email) {
-            console.log('Sending password to:', email);
-            alert(`Password reset email sent to: ${email}`);
-        }
+
+        // Initialize the view on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            mainContentDiv = document.getElementById('main-content-div');
+            loadInitialView();
+        });
     </script>
 
 </body>
