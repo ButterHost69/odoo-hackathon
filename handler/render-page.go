@@ -34,8 +34,11 @@ func RenderInitPage(ctx *gin.Context) {
 	}
 	fmt.Print(user)
 
-	if user.Role != "admin" {
-		RenderUserPage(ctx)
+	if user.Role == "employee" {
+		RenderEmployeePage(ctx)
+		return
+	} else if user.Role != "manager"{
+		RenderManagerPage(ctx, email)
 		return
 	}
 	users, err := db.GetAllUsersDetailsUsingCompanyID(user.CompanyID)

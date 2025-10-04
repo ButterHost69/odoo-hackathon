@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql/driver"
 	"fmt"
+	"time"
 
 	"github.com/lib/pq"
 )
@@ -66,4 +67,23 @@ type Rules struct {
 	MinApprovalPercent   int
 	IsApprovalSequential bool
 	Approvers            ApproverInfoSlice
+}
+
+type Expense struct {
+    ExpenseID     int
+    EmployeeEmail string
+    Description   string
+    ExpenseDate   time.Time
+    Category      string
+    Amount        int
+    Remarks       string
+    Status        string
+}
+
+// ApprovalStatus represents a record in the 'approval_status' table.
+type ApprovalStatus struct {
+    ExpenseID         int
+    ManagerEmail      string
+    ApprovalTimestamp time.Time
+    Status            string
 }

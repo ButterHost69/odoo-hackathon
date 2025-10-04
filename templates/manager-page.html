@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html class="h-full bg-gray-50">
 
 <head>
@@ -142,6 +142,134 @@
             alert('You have been logged out.');
             // In a real application, you would redirect to a login page:
             // window.location.href = '/login.html';
+        }
+    </script>
+
+</body>
+
+</html> -->
+
+
+<!DOCTYPE html>
+<html class="h-full bg-gray-50">
+
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Manager Expense Approvals</title>
+</head>
+
+<body class="h-full">
+
+    <div id="main-content-div" class="flex-1 flex flex-col overflow-hidden">
+        <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h1 class="text-2xl font-semibold text-gray-900">Expense Approvals</h1>
+            <button onclick="logout()"
+                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+                Logout
+            </button>
+        </div>
+
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Approval Subject</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Request Owner</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Category</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Request Status</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Total Amount</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="expenses-table-body">
+                            {{/* Loop over the slice of Expense structs passed from the Go handler */}}
+                            {{ range . }}
+                            <tr id="expense-{{ .ExpenseID }}" class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ .Description }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ .EmployeeEmail }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ .Category }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    {{/* Conditionally style the status badge */}}
+                                    {{ if eq .Manager_Status "pending" }}
+                                    <span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">Pending Approval</span>
+                                    {{ else if eq .Manager_Status "approved" }}
+                                    <span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-green-100 text-green-800">Approved</span>
+                                    {{ else if eq .Manager_Status "rejected" }}
+                                    <span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-red-100 text-red-800">Rejected</span>
+                                    {{ else }}
+                                    <span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-gray-100 text-gray-800">{{ .Manager_Status }}</span>
+                                    {{ end }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">${{ .Amount }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    {{/* Only show buttons if the status is "Pending" */}}
+                                    {{ if eq .Manager_Status "pending" }}
+                                    <button onclick="handleApproval('{{ .ExpenseID }}', 'Approved')"
+                                        class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
+                                    <button onclick="handleApproval('{{ .ExpenseID }}', 'Rejected')"
+                                        class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
+                                    {{ end }}
+                                </td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        /**
+         * NOTE: This function only updates the UI. In a real application, you would
+         * make a fetch() call to a backend API endpoint to persist the change.
+         */
+        function handleApproval(expenseId, newStatus) {
+            // In a real app, you would send this to the server:
+            // fetch(`/api/expense/${expenseId}/status`, { 
+            //   method: 'POST', 
+            //   body: JSON.stringify({ status: newStatus }),
+            //   headers: {'Content-Type': 'application/json'}
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //    console.log('Success:', data);
+            //    // Only update UI on success
+            //    updateUIAfterApproval(expenseId, newStatus);
+            // })
+            // .catch(error => console.error('Error:', error));
+
+            // For this example, we'll just update the UI directly.
+            updateUIAfterApproval(expenseId, newStatus);
+            alert(`Expense #${expenseId} has been marked as ${newStatus}.`);
+        }
+
+        function updateUIAfterApproval(expenseId, status) {
+            const row = document.getElementById(`expense-${expenseId}`);
+            if (!row) return;
+
+            const statusCell = row.cells[3];
+            const actionCell = row.cells[5];
+
+            // Clear the action buttons
+            actionCell.innerHTML = '';
+
+            // Update the status cell with the new badge
+            if (status === 'Approved') {
+                statusCell.innerHTML = `<span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-green-100 text-green-800">Approved</span>`;
+            } else if (status === 'Rejected') {
+                statusCell.innerHTML = `<span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-red-100 text-red-800">Rejected</span>`;
+            }
+        }
+
+
+        function logout() {
+            console.log('User clicked logout.');
+            alert('You have been logged out.');
+            // In a real application, redirect to a login page:
+            // window.location.href = '/login';
         }
     </script>
 

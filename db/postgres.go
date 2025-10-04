@@ -495,32 +495,99 @@ func GetEmailUsingSessionToken(session_token string) (string, error) {
 }
 
 func GetExpenseIDsByManagerEmail(managerEmail string) ([]int, error) {
-    query := "SELECT expense_id FROM approval_status WHERE manager_email = $1"
+	query := "SELECT expense_id FROM approval_status WHERE manager_email = $1"
 
-    rows, err := db.Query(query, managerEmail)
+	rows, err := db.Query(query, managerEmail)
+	if err != nil {
+		fmt.Printf("[db.GetExpenseIDsByManagerEmail] Query error: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var expenseIDs []int
+
+	for rows.Next() {
+		var id int
+		if err := rows.Scan(&id); err != nil {
+			fmt.Printf("[db.GetExpenseIDsByManagerEmail] Scan error: %v\n", err)
+			return nil, err
+		}
+		expenseIDs = append(expenseIDs, id)
+	}
+
+	if err = rows.Err(); err != nil {
+		fmt.Printf("[db.GetExpenseIDsByManagerEmail] Rows iteration error: %v\n", err)
+		return nil, err
+	}
+
+	fmt.Printf("[LOG] [db.GetExpenseIDsByManagerEmail] Found %d expense(s) for manager %s\n", len(expenseIDs), managerEmail)
+
+	return expenseIDs, nil
+}
+
+// GetExpenseUsingExpenseID fetches a single expense record by its primary key.
+func GetExpenseUsingExpenseID(expense_id int) (Expense, error) {
+	query := `SELECT
+                expense_id, employee_email, description, expense_date,
+                category, amount, remarks, status
+              FROM expenses WHERE expense_id = $1`
+
+	var expense Expense
+
+	err := db.QueryRow(query, expense_id).Scan(
+		&expense.ExpenseID,
+		&expense.EmployeeEmail,
+		&expense.Description,
+		&expense.ExpenseDate,
+		&expense.Category,
+		&expense.Amount,
+		&expense.Remarks,
+		&expense.Status,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Printf("[db.GetExpenseUsingExpenseID] No expense found for ID: %d\n", expense_id)
+		} else {
+			fmt.Printf("[db.GetExpenseUsingExpenseID] Error scanning expense: %v\n", err)
+		}
+	
+		return Expense{}, err
+	}
+
+	fmt.Printf("[LOG] [db.GetExpenseUsingExpenseID] Successfully fetched expense %d\n", expense_id)
+
+	
+	return expense, nil
+}
+
+func GetApprovalStatusByExpenseID(expenseID int) (ApprovalStatus, error) {
+    query := `SELECT
+                expense_id, manager_email, approval_timestamp, status
+              FROM approval_status WHERE expense_id = $1`
+
+    var status ApprovalStatus
+
+    // Use QueryRow for a single result and Scan to populate the struct's fields.
+    err := db.QueryRow(query, expenseID).Scan(
+        &status.ExpenseID,
+        &status.ManagerEmail,
+        &status.ApprovalTimestamp,
+        &status.Status,
+    )
+
     if err != nil {
-        fmt.Printf("[db.GetExpenseIDsByManagerEmail] Query error: %v\n", err)
-        return nil, err
-    }
-    defer rows.Close()
-
-    var expenseIDs []int
-
-    for rows.Next() {
-        var id int
-        if err := rows.Scan(&id); err != nil {
-            fmt.Printf("[db.GetExpenseIDsByManagerEmail] Scan error: %v\n", err)
-            return nil, err
+        if err == sql.ErrNoRows {
+            fmt.Printf("[db.GetApprovalStatus] No status found for expense ID: %d\n", expenseID)
+        } else {
+            fmt.Printf("[db.GetApprovalStatus] Error scanning status: %v\n", err)
         }
-        expenseIDs = append(expenseIDs, id)
+        // On any error, return a zero-value struct and the error.
+        return ApprovalStatus{}, err
     }
 
-    if err = rows.Err(); err != nil {
-        fmt.Printf("[db.GetExpenseIDsByManagerEmail] Rows iteration error: %v\n", err)
-        return nil, err
-    }
-
-    fmt.Printf("[LOG] [db.GetExpenseIDsByManagerEmail] Found %d expense(s) for manager %s\n", len(expenseIDs), managerEmail)
+    fmt.Printf("[LOG] [db.GetApprovalStatus] Successfully fetched status for expense ID %d\n", expenseID)
     
-    return expenseIDs, nil
+    // On success, return the populated struct and a nil error.
+    return status, nil
 }
