@@ -86,7 +86,12 @@ func UpdateSessionTokenInAuthDB(email string, session_token string) error {
 }
 
 func InsertNewRecordInAuthDB(email string, password string) error {
-	query := "INSERT INTO auth (email, password, session_token) VALUE (?,?,?)"
+	// query := "INSERT INTO auth (email, password, session_token) VALUE (?,?,?)"
+
+	query := `INSERT INTO auth
+              (email, password, session_token) 
+              VALUES ($1, $2, $3)`
+
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		fmt.Println("[db.InsertNewRecordAuthInDB] Error Occured : \n", err.Error())
@@ -103,7 +108,7 @@ func InsertNewRecordInAuthDB(email string, password string) error {
 	return nil
 }
 
-func InsertNewCompany(name, country, currency, adminEmail string, managers []ManagerInfo) error {
+func InsertNewCompany(name, country, currency, adminEmail string, managers []ManagerInfo) (int, error) {
 	query := `INSERT INTO company 
               (company_name, country, currency, admin_email, managers) 
               VALUES ($1, $2, $3, $4, $5)`
@@ -111,18 +116,34 @@ func InsertNewCompany(name, country, currency, adminEmail string, managers []Man
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		fmt.Println("[db.InsertNewCompany] Prepare Error: ", err.Error())
-		return err
+		return -1, err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(name, country, currency, adminEmail, pq.Array(managers))
 	if err != nil {
 		fmt.Println("[db.InsertNewCompany] Exec Error: ", err.Error())
-		return err
+		return -1, err
 	}
 
 	fmt.Println("[LOG] [db.InsertNewCompany] Added New Company Record For: ", name)
-	return nil
+
+	query = "SELECT company_id FROM company WHERE admin_email = $1"
+
+	var company_id int
+	err = db.QueryRow(query, adminEmail).Scan(&company_id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return -1, errs.ErrAdminEmailNotFound
+		}
+		// For all other potential errors (connection issues, etc.), return the original error.
+		fmt.Printf("[db.InsertNewCompany] Database error: %v\n", err)
+		return -1, err
+	}
+
+	fmt.Printf("[LOG] [db.InsertNewCompany] Successfully found company id for the given admin email.\n")
+
+	return company_id, nil
 }
 
 func InsertNewUserAccount(email, name, role, managerEmail, managerName string, companyID int) error {
@@ -442,7 +463,6 @@ func GetUserDetailsUsingEmail(email string) (User, error) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			fmt.Printf("[db.GetUserDetailsUsingEmail] No user found for email: %s\n", email)
-			// TODO: fix this with new err
 			return User{}, errs.ErrUserEmailDoesNotExist
 		}
 		fmt.Printf("[db.GetUserDetailsUsingEmail] Error scanning user details: %v\n", err)
@@ -452,4 +472,24 @@ func GetUserDetailsUsingEmail(email string) (User, error) {
 	fmt.Printf("[LOG] [db.GetUserDetailsUsingEmail] Successfully fetched details for user: %s\n", email)
 
 	return user, nil
+}
+
+func GetEmailUsingSessionToken(session_token string) (string, error) {
+	query := "SELECT email FROM auth WHERE session_token = $1"
+
+	var email string
+
+	err := db.QueryRow(query, session_token).Scan(&email)
+	if err != nil {
+		// Check if the error is specifically because no record was found.
+		if err == sql.ErrNoRows {
+			return "", errs.ErrSessionTokenDoesNotExist
+		}
+		fmt.Printf("[db.GetEmailUsingSessionToken] Database error: %v\n", err)
+		return "", err
+	}
+
+	fmt.Printf("[LOG] [db.GetEmailUsingSessionToken] Successfully found email for the given session token.\n")
+
+	return email, nil
 }
