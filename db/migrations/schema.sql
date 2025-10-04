@@ -37,7 +37,7 @@ CREATE TYPE approver_info AS (
 );
 
 CREATE TABLE rules (
-	empployee_email TEXT,
+	employee_email TEXT,
 	is_manager_approver BOOL,
 	min_approval_percent INT,
 	is_approval_sequential BOOL,

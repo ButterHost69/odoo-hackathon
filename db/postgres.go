@@ -3,40 +3,15 @@ package db
 import (
 	"crypto/rand"
 	"database/sql"
-	"database/sql/driver"
 	"encoding/base64"
 	"fmt"
 	"os"
 	"time"
 
-	"github.com/ButterHost69/odoo-hackathon/models"
 	"github.com/lib/pq" // registers driver
 )
 
 var db *sql.DB
-
-// ManagerInfo corresponds to the 'manager_info' SQL type
-type ManagerInfo struct {
-	ManagerEmail string
-	ManagerName  string
-}
-
-// ApproverInfo corresponds to the 'approver_info' SQL type
-type ApproverInfo struct {
-	ApproverEmail    string
-	ApprovalRequired bool
-}
-
-// Value implements the driver.Valuer interface for ManagerInfo.
-// This tells the pq driver how to format the struct for the database.
-func (m ManagerInfo) Value() (driver.Value, error) {
-	return fmt.Sprintf("(%s,%s)", m.ManagerEmail, m.ManagerName), nil
-}
-
-// Value implements the driver.Valuer interface for ApproverInfo.
-func (a ApproverInfo) Value() (driver.Value, error) {
-	return fmt.Sprintf("(%s,%t)", a.ApproverEmail, a.ApprovalRequired), nil
-}
 
 func InitDB() error {
 	fmt.Println("[Log] Connecting to Postgress")
@@ -294,7 +269,7 @@ func GetCompanyIDByAdminEmail(adminEmail string) (int, error) {
 	return companyID, nil
 }
 
-func GetAllUsersDetailsUsingCompanyID(company_id int) ([]models.User, error) {
+func GetAllUsersDetailsUsingCompanyID(company_id int) ([]User, error) {
 	query := "SELECT email, name, role, manager_email, manager_name, company_id FROM user_account WHERE company_id = $1"
 
 	rows, err := db.Query(query, company_id)
@@ -304,10 +279,10 @@ func GetAllUsersDetailsUsingCompanyID(company_id int) ([]models.User, error) {
 	}
 	defer rows.Close()
 
-	var users []models.User
+	var users []User
 
 	for rows.Next() {
-		var user models.User
+		var user User
 		if err := rows.Scan(&user.Email, &user.Name, &user.Role, &user.ManagerEmail, &user.ManagerName, &user.CompanyID); err != nil {
 			fmt.Printf("[db.GetAllUsersDetailsUsingCompanyID] Scan Error: %v\n", err)
 			return nil, err
@@ -323,4 +298,37 @@ func GetAllUsersDetailsUsingCompanyID(company_id int) ([]models.User, error) {
 	fmt.Printf("[LOG] [db.GetAllUsersDetailsUsingCompanyID] Fetched %d users for company_id: %d\n", len(users), company_id)
 
 	return users, nil
+}
+
+func GetRulesUsingUserEmail(email string) (Rules, error) {
+	query := `SELECT
+                employee_email,
+                is_manager_approver,
+                min_approval_percent,
+                is_approval_sequential,
+                approvers
+              FROM rules WHERE employee_email = $1`
+
+	var rules Rules
+
+	err := db.QueryRow(query, email).Scan(
+		&rules.EmployeeEmail,
+		&rules.IsManagerApprover,
+		&rules.MinApprovalPercent,
+		&rules.IsApprovalSequential,
+		&rules.Approvers,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Printf("[db.GetRulesUsingUserEmail] No rules found for email: %s\n", email)
+		} else {
+			fmt.Printf("[db.GetRulesUsingUserEmail] Error scanning rules: %v\n", err)
+		}
+		// Return a zero-value struct and the error.
+		return Rules{}, err
+	}
+
+	fmt.Printf("[LOG] [db.GetRulesUsingUserEmail] Successfully fetched rules for email: %s\n", email)
+	return rules, nil
 }
