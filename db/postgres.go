@@ -1,14 +1,43 @@
 package db
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"database/sql/driver"
+	"encoding/base64"
 	"fmt"
 	"os"
+	"time"
 
-	_ "github.com/lib/pq" // registers driver
+	"github.com/lib/pq" // registers driver
 )
 
 var db *sql.DB
+
+// ManagerInfo corresponds to the 'manager_info' SQL type
+type ManagerInfo struct {
+    ManagerEmail string
+    ManagerName  string
+}
+
+
+// ApproverInfo corresponds to the 'approver_info' SQL type
+type ApproverInfo struct {
+    ApproverEmail    string
+    ApprovalRequired bool
+}
+
+// Value implements the driver.Valuer interface for ManagerInfo.
+// This tells the pq driver how to format the struct for the database.
+func (m ManagerInfo) Value() (driver.Value, error) {
+    return fmt.Sprintf("(%s,%s)", m.ManagerEmail, m.ManagerName), nil
+}
+
+
+// Value implements the driver.Valuer interface for ApproverInfo.
+func (a ApproverInfo) Value() (driver.Value, error) {
+    return fmt.Sprintf("(%s,%t)", a.ApproverEmail, a.ApprovalRequired), nil
+}
 
 func InitDB() error {
 	fmt.Println("[Log] Connecting to Postgress")
@@ -47,4 +76,165 @@ func InitDB() error {
 	fmt.Println("[Log] Pinging to postgress db is succesful !!")
 
 	return nil
+}
+
+
+func GenerateToken() (string, error) {
+	randomBytes := make([]byte, 32)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		fmt.Println("[db.GenerateToken] Error Occured : \n", err.Error())
+		return "", err
+	}
+
+	customEncoding := base64.RawURLEncoding
+	token := customEncoding.EncodeToString(randomBytes)
+
+	return token, nil
+}
+
+func UpdateSessionTokenInAuthDB(email string, session_token string) error {
+	query := "UPDATE auth SET session_token = $1 WHERE email = $2"
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		fmt.Println("[db.UpdateSessionTokenInDB] Error Occured : \n", err.Error())
+		return err
+	}
+
+	_, err = stmt.Exec(email, session_token)
+	if err != nil {
+		fmt.Println("[db.UpdateSessionTokenInDB] Error Occured: \n", err.Error())
+		return err
+	}
+
+	fmt.Println("[LOG] [db.UpdateSessionTokenInDB]  Update Session Token For User: ", email)
+	return nil
+}
+
+func InsertNewRecordInAuthDB(email string, password string) error {
+	query := "INSERT INTO auth (email, password, session_token) VALUE (?,?,?)"
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		fmt.Println("[db.InsertNewRecordAuthInDB] Error Occured : \n", err.Error())
+		return err
+	}
+
+	_, err = stmt.Exec(email, password, "")
+	if err != nil {
+		fmt.Println("[db.InsertNewRecordAuthInDB] Error Occured: \n", err.Error())
+		return err
+	}
+
+	fmt.Println("[LOG] [db.InsertNewRecordAuthInDB] Added New User Record To AUTH For ID: ", email)
+	return nil
+}
+
+func InsertNewCompany(name, country, currency, adminEmail string, managers []ManagerInfo) error {
+    query := `INSERT INTO company 
+              (company_name, country, currency, admin_email, managers) 
+              VALUES ($1, $2, $3, $4, $5)`
+    
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        fmt.Println("[db.InsertNewCompany] Prepare Error: ", err.Error())
+        return err
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(name, country, currency, adminEmail, pq.Array(managers))
+    if err != nil {
+        fmt.Println("[db.InsertNewCompany] Exec Error: ", err.Error())
+        return err
+    }
+
+    fmt.Println("[LOG] [db.InsertNewCompany] Added New Company Record For: ", name)
+    return nil
+}
+
+func InsertNewUserAccount(email, name, role, managerEmail, managerName string, companyID int) error {
+    query := `INSERT INTO user_account 
+              (email, name, role, manager_email, manager_name, company_id) 
+              VALUES ($1, $2, $3, $4, $5, $6)`
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        fmt.Println("[db.InsertNewUserAccount] Prepare Error: ", err.Error())
+        return err
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(email, name, role, managerEmail, managerName, companyID)
+    if err != nil {
+        fmt.Println("[db.InsertNewUserAccount] Exec Error: ", err.Error())
+        return err
+    }
+
+    fmt.Println("[LOG] [db.InsertNewUserAccount] Added New User Account Record For: ", email)
+    return nil
+}
+
+func InsertNewRule(employeeEmail string, isManagerApprover, isApprovalSequential bool, minApprovalPercent int, approvers []ApproverInfo) error {
+    query := `INSERT INTO rules 
+              (employee_email, is_manager_approver, min_approval_percent, is_approval_sequential, approvers) 
+              VALUES ($1, $2, $3, $4, $5)`
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        fmt.Println("[db.InsertNewRule] Prepare Error: ", err.Error())
+        return err
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(employeeEmail, isManagerApprover, minApprovalPercent, isApprovalSequential, pq.Array(approvers))
+    if err != nil {
+        fmt.Println("[db.InsertNewRule] Exec Error: ", err.Error())
+        return err
+    }
+
+    fmt.Println("[LOG] [db.InsertNewRule] Added New Rule Record For: ", employeeEmail)
+    return nil
+}
+
+func InsertNewExpense(employeeEmail, description, category, remarks, status string, amount int, expenseDate time.Time) error {
+    query := `INSERT INTO expenses 
+              (employee_email, description, expense_date, category, amount, remarks, status) 
+              VALUES ($1, $2, $3, $4, $5, $6, $7)`
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        fmt.Println("[db.InsertNewExpense] Prepare Error: ", err.Error())
+        return err
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(employeeEmail, description, expenseDate, category, amount, remarks, status)
+    if err != nil {
+        fmt.Println("[db.InsertNewExpense] Exec Error: ", err.Error())
+        return err
+    }
+
+    fmt.Println("[LOG] [db.InsertNewExpense] Added New Expense Record For: ", employeeEmail)
+    return nil
+}
+
+func InsertNewApprovalStatus(expenseID int, managerEmail, status string, approvalTimestamp time.Time) error {
+    query := `INSERT INTO approval_status 
+              (expense_id, manager_email, approval_timestamp, status) 
+              VALUES ($1, $2, $3, $4)`
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        fmt.Println("[db.InsertNewApprovalStatus] Prepare Error: ", err.Error())
+        return err
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(expenseID, managerEmail, approvalTimestamp, status)
+    if err != nil {
+        fmt.Println("[db.InsertNewApprovalStatus] Exec Error: ", err.Error())
+        return err
+    }
+
+    fmt.Println("[LOG] [db.InsertNewApprovalStatus] Added New Approval Status For Expense ID: ", expenseID)
+    return nil
 }

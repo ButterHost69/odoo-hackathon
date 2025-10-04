@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/ButterHost69/odoo-hackathon/db"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -22,4 +23,9 @@ func init() {
 
 func main(){
 	fmt.Println("Hello World")
+	ipAddr := "localhost:3030"
+
+	fmt.Println("Server Running on: ", ipAddr)
+	r := gin.Default()
+	r.Run(ipAddr)
 }
