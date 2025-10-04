@@ -19,6 +19,21 @@
             opacity: 0.5;
             border: 1px dashed #4f46e5;
         }
+
+        /* Style for the inline form fields */
+        .inline-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .inline-input:focus {
+            border-color: #4f46e5;
+            outline: none;
+            box-shadow: 0 0 0 1px #4f46e5;
+        }
     </style>
 </head>
 
@@ -65,7 +80,7 @@
             { id: 'lindsay-walton', name: 'Lindsay Walton', role: 'User', manager: 'John Smith', email: 'lindsay.walton@example.com' },
         ];
 
-        const MANAGER_LIST = ['sarah', 'John Smith', 'David Wilson', 'Lisa Brown'];
+        const MANAGER_LIST = ['sarah', 'John Smith', 'David Wilson', 'Lisa Brown', 'Alex Johnson', 'Maria Garcia'];
         const APPROVER_LIST = [
             { id: 'john', name: 'John', required: true },
             { id: 'mitchell', name: 'Mitchell', required: false },
@@ -75,9 +90,12 @@
         let currentUserList = [...MOCK_USERS];
         let currentApprovers = [...APPROVER_LIST];
 
-        // --- GLOBAL ELEMENTS ---
-        let mainContentDiv = document.getElementById('main-admin-div');
-        let managerInputField, managerOptionsList, managerFilterInput, managerList, comboboxContainer;
+        // --- GLOBAL ELEMENTS (for the Approval Rule form) ---
+        let managerInputField_Rule, managerOptionsList_Rule, managerFilterInput_Rule, managerList_Rule, comboboxContainer_Rule;
+
+        // --- GLOBAL ELEMENTS (for the New User form) ---
+        let managerInputField_New, managerOptionsList_New, managerFilterInput_New, managerList_New, comboboxContainer_New;
+
 
         // ----------------------------------------------------------------------
         // --- VIEW TEMPLATES ---
@@ -100,37 +118,103 @@
             `;
         }
 
+        /**
+         * Generates the HTML for the inline 'New User' form row with the combobox.
+         */
+        function createNewUserFormRowHTML() {
+            // NOTE: The ID "new-user-form-row-content" is used to identify the content to show/hide/insert
+            return `
+                <tr id="new-user-form-row-content" class="bg-indigo-50 border-t border-indigo-200">
+                    <td class="px-6 py-2">
+                        <input type="text" name="new_name" placeholder="Name (Mandatory)" required class="inline-input text-sm text-gray-900">
+                    </td>
+                    <td class="px-6 py-2">
+                        <input type="text" name="new_role" value="User" placeholder="Role (Mandatory)" required class="inline-input text-sm text-gray-600">
+                    </td>
+                    
+                    <td class="px-6 py-2">
+                        <div class="relative" id="manager-combobox-container-new">
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    id="manager-input-new"
+                                    name="new_manager"
+                                    placeholder="Manager (Mandatory)"
+                                    required
+                                    class="combobox-input inline-input text-sm text-gray-600 pr-10 bg-white cursor-pointer focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    onclick="toggleManagerDropdownNew(event)"
+                                />
+                                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-2" onclick="toggleManagerDropdownNew(event)">
+                                    <svg class="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="manager-options-list-new" class="absolute z-30 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
+                                <div class="p-2 sticky top-0 bg-white border-b border-gray-200 z-40">
+                                    <input type="text" placeholder="Filter list..." id="manager-filter-input-new"
+                                        class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                                        oninput="filterManagersNew(this.value)">
+                                </div>
+                                <ul id="manager-list-new" class="py-1 text-sm text-gray-700 divide-y divide-gray-100">
+                                    ${getManagerOptionsHTML_New('', '')}
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                    
+                    <td class="px-6 py-2">
+                        <input type="email" name="new_email" placeholder="Email (Mandatory)" required class="inline-input text-sm text-gray-600">
+                    </td>
+                    <td class="px-6 py-2 whitespace-nowrap text-sm flex space-x-2">
+                        <button type="button" onclick="toggleNewUserForm(event)"
+                            class="text-indigo-600 hover:text-indigo-800 font-medium py-1 px-3 transition-colors">Cancel</button>
+                        <button type="submit"
+                            class="text-white bg-indigo-600 hover:bg-indigo-700 font-medium py-1 px-3 rounded-md shadow-sm transition-colors">Save</button>
+                    </td>
+                </tr>
+            `;
+        }
+
         function createUsersListViewHTML(users) {
             const rowsHTML = users.map(createUserRowHTML).join('');
 
             return `
-                <div class="bg-white border-b border-gray-200 px-6 py-4">
-                    <h1 class="text-2xl font-semibold text-gray-900">Users</h1>
+                <div class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                    <h1 class="text-2xl font-semibold text-gray-900">Users List</h1>
+                    <button onclick="toggleNewUserForm(event)" id="new-user-button"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        New User +
+                    </button>
                 </div>
 
                 <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
                     <div class="max-w-7xl mx-auto">
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">User</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Manager</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200" id="users-table-body">
-                                    ${rowsHTML}
-                                </tbody>
-                            </table>
+                            <form id="new-user-form" onsubmit="handleNewUserSubmit(event)">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">User</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Manager</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200" id="users-table-body">
+                                        ${rowsHTML}
+                                        <tr id="new-user-form-placeholder"></tr>
+                                    </tbody>
+                                </table>
+                            </form>
                         </div>
                     </div>
                 </main>
             `;
         }
 
+        // Helper to generate manager options HTML
         function getManagerOptionsHTML(searchTerm = '', selectedManager = '') {
             const filter = searchTerm.toLowerCase();
             return MANAGER_LIST.filter(manager => manager.toLowerCase().includes(filter)).map(manager => {
@@ -139,13 +223,21 @@
             }).join('');
         }
 
+        // Helper to generate manager options HTML for NEW USER FORM (uses a different select function)
+        function getManagerOptionsHTML_New(searchTerm = '', selectedManager = '') {
+            const filter = searchTerm.toLowerCase();
+            return MANAGER_LIST.filter(manager => manager.toLowerCase().includes(filter)).map(manager => {
+                const activeClass = manager.toLowerCase() === selectedManager.toLowerCase() ? 'bg-indigo-100 text-indigo-700 font-semibold' : '';
+                return `<li class="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700 ${activeClass}" onclick="selectManagerNew(this)">${manager}</li>`;
+            }).join('');
+        }
+
         /**
-         * Creates the HTML for the detailed Approval Rule form.
-         * @param {Object} user - The user object (e.g., marc).
-         * @param {Array} approvers - The list of approvers.
+         * Creates the HTML for the detailed Approval Rule form. (Unchanged for this request)
          */
         function createApprovalRuleFormHTML(user, approvers) {
-            const managerOptionsHTML = getManagerOptionsHTML('', user.manager);
+            // ... (rest of the approval rule form HTML remains the same)
+            const managerOptionsHTML = getManagerOptionsHTML('', user.manager); // Using the general one for the Rule form
 
             const approverItemsHTML = approvers.map((approver, index) => `
                 <li class="approver-item p-3 border-b border-gray-200 flex justify-between items-center bg-white hover:bg-gray-50 transition-colors"
@@ -188,33 +280,33 @@
                                     <input type="text" value="${user.name}" readonly class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md">
                                 </div>
                                 
-                                <div class="relative" id="manager-combobox-container">
+                                <div class="relative" id="manager-combobox-container-rule">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Manager</label>
                                     <div class="relative">
                                         <input
                                             type="text"
-                                            id="manager-input"
+                                            id="manager-input-rule"
                                             name="manager"
                                             value="${user.manager}"
                                             placeholder="Search and select manager"
                                             required
                                             readonly
                                             class="combobox-input w-full px-3 py-2 border border-gray-300 rounded-md pr-10 bg-white cursor-pointer focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                            onclick="toggleManagerDropdown(event)"
+                                            onclick="toggleManagerDropdownRule(event)"
                                         />
-                                        <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-2" onclick="toggleManagerDropdown(event)">
+                                        <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-2" onclick="toggleManagerDropdownRule(event)">
                                             <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                                 <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                                             </svg>
                                         </button>
                                     </div>
-                                    <div id="manager-options-list" class="absolute z-30 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
+                                    <div id="manager-options-list-rule" class="absolute z-30 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
                                         <div class="p-2 sticky top-0 bg-white border-b border-gray-200 z-40">
-                                            <input type="text" placeholder="Filter list..." id="manager-filter-input"
+                                            <input type="text" placeholder="Filter list..." id="manager-filter-input-rule"
                                                 class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                                oninput="filterManagers(this.value)">
+                                                oninput="filterManagersRule(this.value)">
                                         </div>
-                                        <ul id="manager-list" class="py-1 text-sm text-gray-700 divide-y divide-gray-100">
+                                        <ul id="manager-list-rule" class="py-1 text-sm text-gray-700 divide-y divide-gray-100">
                                             ${managerOptionsHTML}
                                         </ul>
                                     </div>
@@ -293,6 +385,102 @@
             mainContentDiv.innerHTML = createUsersListViewHTML(currentUserList);
         }
 
+        // Flag to track the state of the new user form
+        let isNewUserFormVisible = false;
+
+        /**
+         * Toggles the inline 'New User' form visibility and position.
+         */
+        function toggleNewUserForm(event) {
+            if (event) event.preventDefault();
+            const tableBody = document.getElementById('users-table-body');
+            const placeholder = document.getElementById('new-user-form-placeholder');
+            const button = document.getElementById('new-user-button');
+
+            if (!tableBody) return;
+
+            if (!isNewUserFormVisible) {
+                // Show form: Replace the empty placeholder with the form content
+                const placeholderElement = document.getElementById('new-user-form-placeholder');
+                if (placeholderElement) {
+                    placeholderElement.outerHTML = createNewUserFormRowHTML();
+
+                    // 1. Initialize New User Form Combobox Globals
+                    managerInputField_New = document.getElementById('manager-input-new');
+                    managerOptionsList_New = document.getElementById('manager-options-list-new');
+                    managerFilterInput_New = document.getElementById('manager-filter-input-new');
+                    managerList_New = document.getElementById('manager-list-new');
+                    comboboxContainer_New = document.getElementById('manager-combobox-container-new');
+
+                    // 2. Update New User Button Text
+                    button.textContent = 'Cancel Add';
+                    button.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                    button.classList.add('bg-red-600', 'hover:bg-red-700');
+                    isNewUserFormVisible = true;
+                }
+            } else {
+                // Hide form: Replace the form content row with the empty placeholder
+                const formContent = document.getElementById('new-user-form-row-content');
+                if (formContent) {
+                    formContent.outerHTML = '<tr id="new-user-form-placeholder"></tr>';
+                }
+
+                // Reset New User Button Text
+                button.textContent = 'New User +';
+                button.classList.remove('bg-red-600', 'hover:bg-red-700');
+                button.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                isNewUserFormVisible = false;
+
+                // Reset New User Combobox Globals
+                managerInputField_New = managerOptionsList_New = managerFilterInput_New = managerList_New = comboboxContainer_New = null;
+            }
+        }
+
+        /**
+         * Handles the submission of the inline 'New User' form.
+         */
+        function handleNewUserSubmit(event) {
+            event.preventDefault();
+            const form = document.getElementById('new-user-form');
+
+            // Check if the form row is visible (i.e., we are submitting the new user form)
+            const formRow = document.getElementById('new-user-form-row-content');
+            if (!formRow) { return; }
+
+            const newUserData = {
+                id: form.elements['new_name'].value.toLowerCase().replace(/\s+/g, '-'), // Generate a simple ID
+                name: form.elements['new_name'].value,
+                role: form.elements['new_role'].value,
+                manager: form.elements['new_manager'].value,
+                email: form.elements['new_email'].value,
+            };
+
+            // Basic validation
+            if (!newUserData.name || !newUserData.role || !newUserData.manager || !newUserData.email) {
+                alert('All new user fields are mandatory!');
+                return;
+            }
+
+            // Check if user already exists (by name, for simplicity)
+            if (currentUserList.some(user => user.name.toLowerCase() === newUserData.name.toLowerCase())) {
+                alert(`User with name '${newUserData.name}' already exists.`);
+                return;
+            }
+
+            // Simulate saving the new user
+            currentUserList.push(newUserData);
+            console.log("Simulating POST request to /api/add-new-user");
+            console.log("New User Payload:", newUserData);
+
+            // Refresh the view to show the new user and hide the form
+            alert(`New user '${newUserData.name}' added successfully!`);
+
+            // Use toggleNewUserForm to correctly hide the form and reset the button
+            toggleNewUserForm();
+            loadInitialView(); // Reload the list to show the new user at the bottom
+        }
+
+
         function openApprovalRuleForm(userId) {
             const user = currentUserList.find(u => u.id === userId);
             if (!user) {
@@ -303,12 +491,12 @@
             const mainContentDiv = document.getElementById('main-content-div');
             mainContentDiv.innerHTML = createApprovalRuleFormHTML(user, currentApprovers);
 
-            // Re-initialize Combobox elements for new form
-            managerInputField = document.getElementById('manager-input');
-            managerOptionsList = document.getElementById('manager-options-list');
-            managerFilterInput = document.getElementById('manager-filter-input');
-            managerList = document.getElementById('manager-list');
-            comboboxContainer = document.getElementById('manager-combobox-container');
+            // Re-initialize Approval Rule Combobox elements
+            managerInputField_Rule = document.getElementById('manager-input-rule');
+            managerOptionsList_Rule = document.getElementById('manager-options-list-rule');
+            managerFilterInput_Rule = document.getElementById('manager-filter-input-rule');
+            managerList_Rule = document.getElementById('manager-list-rule');
+            comboboxContainer_Rule = document.getElementById('manager-combobox-container-rule');
 
             initDragAndDrop();
         }
@@ -317,7 +505,7 @@
             event.preventDefault();
             const form = event.target;
 
-            // 1. Extract Approvers data (Order and Required status)
+            // ... (submission logic remains the same)
             const approversListElement = document.getElementById('approvers-list');
             const approverItems = Array.from(approversListElement.children);
             const finalApprovers = approverItems.map(item => {
@@ -327,9 +515,8 @@
                 return { id, name, required: isRequired };
             });
 
-            // 2. Extract other form data
             const formData = {
-                userId: MOCK_USERS[0].id, // Mocking the first user 'marc' as the current context
+                userId: currentUserList.find(u => u.name === form.querySelector('input[readonly]').value)?.id || MOCK_USERS[0].id,
                 manager: form.elements['manager'].value,
                 isManagerApprover: form.elements['is_manager_approver'].checked,
                 approvers: finalApprovers,
@@ -337,8 +524,7 @@
                 minApprovalPercentage: form.elements['min_approval_percentage'].value,
             };
 
-            // 3. Update mock state and log request
-            currentApprovers = finalApprovers; // Update the mock list order/required status
+            currentApprovers = finalApprovers;
             console.log("Simulating POST request to /api/save-approval-rule");
             console.log("Payload:", formData);
 
@@ -347,7 +533,94 @@
         }
 
         // ----------------------------------------------------------------------
-        // --- DRAG AND DROP IMPLEMENTATION ---
+        // --- COMBOBOX FUNCTIONS (Approval Rule Form) ---
+        // ----------------------------------------------------------------------
+
+        function toggleManagerDropdownRule(event) {
+            if (event) event.stopPropagation();
+            if (!managerOptionsList_Rule) return;
+
+            const isHidden = managerOptionsList_Rule.classList.contains('hidden');
+            if (isHidden) {
+                managerOptionsList_Rule.classList.remove('hidden');
+                managerFilterInput_Rule.focus();
+            } else {
+                managerOptionsList_Rule.classList.add('hidden');
+                managerFilterInput_Rule.value = '';
+                filterManagersRule('');
+            }
+        }
+
+        function filterManagersRule(searchTerm) {
+            if (!managerList_Rule || !managerInputField_Rule) return;
+            managerList_Rule.innerHTML = getManagerOptionsHTML(searchTerm, managerInputField_Rule.value);
+        }
+
+        function selectManager(selectedElement) {
+            if (!managerInputField_Rule) return;
+            const selectedName = selectedElement.textContent;
+            managerInputField_Rule.value = selectedName;
+            toggleManagerDropdownRule();
+        }
+
+        // ----------------------------------------------------------------------
+        // --- COMBOBOX FUNCTIONS (New User Form) ---
+        // ----------------------------------------------------------------------
+
+        function toggleManagerDropdownNew(event) {
+            if (event) event.stopPropagation();
+            if (!managerOptionsList_New) return;
+
+            const isHidden = managerOptionsList_New.classList.contains('hidden');
+            if (isHidden) {
+                managerOptionsList_New.classList.remove('hidden');
+                managerFilterInput_New.focus();
+            } else {
+                managerOptionsList_New.classList.add('hidden');
+                managerFilterInput_New.value = '';
+                filterManagersNew('');
+            }
+        }
+
+        function filterManagersNew(searchTerm) {
+            if (!managerList_New || !managerInputField_New) return;
+            managerList_New.innerHTML = getManagerOptionsHTML_New(searchTerm, managerInputField_New.value);
+        }
+
+        function selectManagerNew(selectedElement) {
+            if (!managerInputField_New) return;
+            const selectedName = selectedElement.textContent;
+            managerInputField_New.value = selectedName;
+            toggleManagerDropdownNew();
+        }
+
+
+        // ----------------------------------------------------------------------
+        // --- GENERAL EVENT HANDLERS ---
+        // ----------------------------------------------------------------------
+
+        // Universal click handler to close open comboboxes
+        document.addEventListener('click', function (event) {
+            // Check for Approval Rule Combobox
+            if (comboboxContainer_Rule && !comboboxContainer_Rule.contains(event.target)) {
+                if (managerOptionsList_Rule && !managerOptionsList_Rule.classList.contains('hidden')) {
+                    managerOptionsList_Rule.classList.add('hidden');
+                    managerFilterInput_Rule.value = '';
+                    filterManagersRule('');
+                }
+            }
+            // Check for New User Combobox
+            if (comboboxContainer_New && !comboboxContainer_New.contains(event.target)) {
+                if (managerOptionsList_New && !managerOptionsList_New.classList.contains('hidden')) {
+                    managerOptionsList_New.classList.add('hidden');
+                    managerFilterInput_New.value = '';
+                    filterManagersNew('');
+                }
+            }
+        });
+
+        // ----------------------------------------------------------------------
+        // --- DRAG AND DROP IMPLEMENTATION (Unchanged) ---
         // ----------------------------------------------------------------------
 
         function initDragAndDrop() {
@@ -361,13 +634,12 @@
                 if (draggingItem) {
                     draggingItem.classList.add('dragging');
                     e.dataTransfer.effectAllowed = 'move';
-                    // Set data to avoid Firefox dragging issue
                     e.dataTransfer.setData('text/plain', draggingItem.id);
                 }
             });
 
             list.addEventListener('dragover', (e) => {
-                e.preventDefault(); // Allows drop
+                e.preventDefault();
                 const targetItem = e.target.closest('.approver-item');
                 if (targetItem && targetItem !== draggingItem) {
                     const targetRect = targetItem.getBoundingClientRect();
@@ -384,7 +656,6 @@
                 }
             });
 
-            // Helper to re-render the numbering after a drop
             function updateApproverNumbers() {
                 Array.from(list.children).forEach((item, index) => {
                     const numberSpan = item.querySelector('span:first-child');
@@ -395,47 +666,9 @@
             }
         }
 
-        // ----------------------------------------------------------------------
-        // --- COMBOBOX FUNCTIONS (Copied and adapted from previous response) ---
-        // ----------------------------------------------------------------------
-
-        function toggleManagerDropdown(event) {
-            if (event) event.stopPropagation();
-            const isHidden = managerOptionsList.classList.contains('hidden');
-            if (isHidden) {
-                managerOptionsList.classList.remove('hidden');
-                managerFilterInput.focus();
-            } else {
-                managerOptionsList.classList.add('hidden');
-                managerFilterInput.value = '';
-                filterManagers('');
-            }
-        }
-
-        function filterManagers(searchTerm) {
-            managerList.innerHTML = getManagerOptionsHTML(searchTerm, managerInputField.value);
-        }
-
-        function selectManager(selectedElement) {
-            const selectedName = selectedElement.textContent;
-            managerInputField.value = selectedName;
-            toggleManagerDropdown();
-        }
-
-        document.addEventListener('click', function (event) {
-            if (comboboxContainer && !comboboxContainer.contains(event.target)) {
-                if (managerOptionsList && !managerOptionsList.classList.contains('hidden')) {
-                    managerOptionsList.classList.add('hidden');
-                    managerFilterInput.value = '';
-                    filterManagers('');
-                }
-            }
-        });
-
 
         // Initialize the view on page load
         document.addEventListener('DOMContentLoaded', () => {
-            // Need to set the global variable reference here since the form is loaded dynamically
             mainContentDiv = document.getElementById('main-content-div');
             loadInitialView();
         });
