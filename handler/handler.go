@@ -85,17 +85,17 @@ func Login(ctx *gin.Context) {
 
 	utils.SetSessionTokenInCookie(ctx.Writer, new_token)
 
-	users, err := db.GetAllUsersDetailsUsingCompanyID(user.CompanyID)
-	if err != nil {
-		log.Println("[handler.Login] Error while Getting All Users Details Using Company ID:", err)
-		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
-		return
-	}
-
 	if user.Role == "admin" {
+		users, err := db.GetAllUsersDetailsUsingCompanyID(user.CompanyID)
+		if err != nil {
+			log.Println("[handler.Login] Error while Getting All Users Details Using Company ID:", err)
+			fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+			return
+		}
+
 		RenderAdminPage(ctx, users)
 	} else if user.Role == "manager" {
-		RenderManagerPage(ctx)
+		RenderManagerPage(ctx, email)
 	} else {
 		RenderEmployeePage(ctx)
 	}
