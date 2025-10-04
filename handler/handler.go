@@ -87,20 +87,25 @@ func Login(ctx *gin.Context) {
 
 	utils.SetSessionTokenInCookie(ctx.Writer, new_token)
 
-	users, err := db.GetAllUsersDetailsUsingCompanyID(user.CompanyID)
-	if err != nil {
-		log.Println("[handler.Login] Error while Getting All Users Details Using Company ID:", err)
-		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
-		return
-	}
-
 	switch user.Role {
 	case "admin":
+		users, err := db.GetAllUsersDetailsUsingCompanyID(user.CompanyID)
+		if err != nil {
+			log.Println("[handler.Login] Error while Getting All Users Details Using Company ID:", err)
+			fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+			return
+		}
 		RenderAdminPage(ctx, users)
 	case "manager":
 		RenderManagerPage(ctx, email)
 	default:
-		RenderEmployeePage(ctx)
+		expenses, err := db.GetExpensesByEmployeeEmail(email)
+		if err != nil {
+			log.Println("[handler.RenderInitPage] Error while Getting User Expenses Using Email:", err)
+			fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+			return
+		}
+		RenderEmployeePage(ctx, expenses)
 	}
 }
 
@@ -154,7 +159,6 @@ func CreateUser(ctx *gin.Context) {
 
 	RenderAdminPage(ctx, users)
 }
-
 
 func ApproveExpense(ctx *gin.Context) {
 	managerEmail := ctx.Param("managerEmail")

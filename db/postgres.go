@@ -551,45 +551,44 @@ func GetExpenseUsingExpenseID(expense_id int) (Expense, error) {
 		} else {
 			fmt.Printf("[db.GetExpenseUsingExpenseID] Error scanning expense: %v\n", err)
 		}
-	
+
 		return Expense{}, err
 	}
 
 	fmt.Printf("[LOG] [db.GetExpenseUsingExpenseID] Successfully fetched expense %d\n", expense_id)
 
-	
 	return expense, nil
 }
 
 func GetApprovalStatusByExpenseID(expenseID int) (ApprovalStatus, error) {
-    query := `SELECT
+	query := `SELECT
                 expense_id, manager_email, approval_timestamp, status
               FROM approval_status WHERE expense_id = $1`
 
-    var status ApprovalStatus
+	var status ApprovalStatus
 
-    // Use QueryRow for a single result and Scan to populate the struct's fields.
-    err := db.QueryRow(query, expenseID).Scan(
-        &status.ExpenseID,
-        &status.ManagerEmail,
-        &status.ApprovalTimestamp,
-        &status.Status,
-    )
+	// Use QueryRow for a single result and Scan to populate the struct's fields.
+	err := db.QueryRow(query, expenseID).Scan(
+		&status.ExpenseID,
+		&status.ManagerEmail,
+		&status.ApprovalTimestamp,
+		&status.Status,
+	)
 
-    if err != nil {
-        if err == sql.ErrNoRows {
-            fmt.Printf("[db.GetApprovalStatus] No status found for expense ID: %d\n", expenseID)
-        } else {
-            fmt.Printf("[db.GetApprovalStatus] Error scanning status: %v\n", err)
-        }
-        // On any error, return a zero-value struct and the error.
-        return ApprovalStatus{}, err
-    }
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Printf("[db.GetApprovalStatus] No status found for expense ID: %d\n", expenseID)
+		} else {
+			fmt.Printf("[db.GetApprovalStatus] Error scanning status: %v\n", err)
+		}
+		// On any error, return a zero-value struct and the error.
+		return ApprovalStatus{}, err
+	}
 
-    fmt.Printf("[LOG] [db.GetApprovalStatus] Successfully fetched status for expense ID %d\n", expenseID)
-    
-    // On success, return the populated struct and a nil error.
-    return status, nil
+	fmt.Printf("[LOG] [db.GetApprovalStatus] Successfully fetched status for expense ID %d\n", expenseID)
+
+	// On success, return the populated struct and a nil error.
+	return status, nil
 }
 
 func UpdateApprovalStatus(expenseID int, manager_email string, status string) error {
@@ -597,27 +596,70 @@ func UpdateApprovalStatus(expenseID int, manager_email string, status string) er
               SET status = $1, approval_timestamp = $2
               WHERE expense_id = $3 AND manager_email = $4`
 
-    currentTime := time.Now()
+	currentTime := time.Now()
 
-    // Use db.Exec for operations that don't return rows.
-    result, err := db.Exec(query, status, currentTime, expenseID, manager_email)
-    if err != nil {
-        fmt.Printf("[db.UpdateApprovalStatus] Error executing update: %v\n", err)
-        return err
-    }
+	// Use db.Exec for operations that don't return rows.
+	result, err := db.Exec(query, status, currentTime, expenseID, manager_email)
+	if err != nil {
+		fmt.Printf("[db.UpdateApprovalStatus] Error executing update: %v\n", err)
+		return err
+	}
 
-    // Check if any rows were actually modified by the query.
-    rowsAffected, err := result.RowsAffected()
-    if err != nil {
-        fmt.Printf("[db.UpdateApprovalStatus] Error checking rows affected: %v\n", err)
-        return err
-    }
+	// Check if any rows were actually modified by the query.
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Printf("[db.UpdateApprovalStatus] Error checking rows affected: %v\n", err)
+		return err
+	}
 
-    // If no rows are affected, it means no record matched the WHERE clause.
-    if rowsAffected == 0 {
-        return fmt.Errorf("no approval status found for expense ID %d and manager %s", expenseID, manager_email)
-    }
+	// If no rows are affected, it means no record matched the WHERE clause.
+	if rowsAffected == 0 {
+		return fmt.Errorf("no approval status found for expense ID %d and manager %s", expenseID, manager_email)
+	}
 
-    fmt.Printf("[LOG] [db.UpdateApprovalStatus] Successfully updated status for expense ID %d\n", expenseID)
-    return nil
+	fmt.Printf("[LOG] [db.UpdateApprovalStatus] Successfully updated status for expense ID %d\n", expenseID)
+	return nil
+}
+func GetExpensesByEmployeeEmail(email string) ([]Expense, error) {
+	query := `SELECT
+                expense_id, employee_email, description, expense_date,
+                category, amount, remarks, status
+              FROM expenses WHERE employee_email = $1`
+
+	rows, err := db.Query(query, email)
+	if err != nil {
+		fmt.Printf("[db.GetExpensesByEmployeeEmail] Error executing query: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var expenses []Expense
+
+	for rows.Next() {
+		var expense Expense
+		err := rows.Scan(
+			&expense.ExpenseID,
+			&expense.EmployeeEmail,
+			&expense.Description,
+			&expense.ExpenseDate,
+			&expense.Category,
+			&expense.Amount,
+			&expense.Remarks,
+			&expense.Status,
+		)
+		if err != nil {
+			fmt.Printf("[db.GetExpensesByEmployeeEmail] Error scanning row: %v\n", err)
+			return nil, err
+		}
+		expenses = append(expenses, expense)
+	}
+
+	if err = rows.Err(); err != nil {
+		fmt.Printf("[db.GetExpensesByEmployeeEmail] Row iteration error: %v\n", err)
+		return nil, err
+	}
+
+	fmt.Printf("[LOG] [db.GetExpensesByEmployeeEmail] Successfully fetched %d expenses for %s\n", len(expenses), email)
+
+	return expenses, nil
 }

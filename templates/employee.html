@@ -1,393 +1,539 @@
 <!DOCTYPE html>
 <html class="h-full bg-gray-50">
-
-<head>
+  <head>
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Employee Expense View</title>
     <style>
-        /* Optional custom style for better visual clarity */
-        .status-badge {
-            padding: 2px 8px;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            line-height: 1;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
+      /* Optional custom style for better visual clarity */
+      .status-badge {
+        padding: 2px 8px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-        /* Custom arrow style for visual flow */
-        .flow-arrow {
-            width: 2rem;
-            height: 2rem;
-            margin: 0 1rem;
-            color: #6366f1;
-            /* Indigo color */
-        }
+      /* Custom arrow style for visual flow */
+      .flow-arrow {
+        width: 2rem;
+        height: 2rem;
+        margin: 0 1rem;
+        color: #6366f1;
+        /* Indigo color */
+      }
 
-        /* Input field styling (NEW) */
-        .form-input {
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            transition: all 0.15s ease-in-out;
-        }
+      /* Input field styling (NEW) */
+      .form-input {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        transition: all 0.15s ease-in-out;
+      }
 
-        .form-input:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 1px #4f46e5;
-        }
+      .form-input:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 1px #4f46e5;
+      }
     </style>
-</head>
+  </head>
 
-<body class="h-full">
-
+  <body class="h-full">
     <div id="employee-div" class="p-8 h-full">
-
-        <header class="bg-white shadow-lg rounded-t-xl p-6 border-b border-gray-200 flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-gray-900">My Expenses</h1>
-            <div class="flex space-x-4">
-                <button id="new-expense-button" onclick="toggleNewExpenseForm()"
-                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    New Expense
-                </button>
-            </div>
-        </header>
-
-        <!-- Expense Summary Flow Bar -->
-        <div class="bg-white border-b border-gray-200 rounded-none shadow-md mb-6">
-            <div class="p-4 flex flex-col md:flex-row items-center justify-around border-t border-gray-100">
-
-                <!-- Stage 1: To Submit -->
-                <div class="flex flex-col items-center text-center p-2">
-                    <span class="text-2xl font-bold text-gray-800">5467 rs</span>
-                    <span class="text-sm font-medium text-gray-500">To submit</span>
-                </div>
-
-                <!-- Arrow 1 -->
-                <svg class="flow-arrow hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
-                    </path>
-                </svg>
-
-                <!-- Stage 2: Waiting Approval -->
-                <div class="flex flex-col items-center text-center p-2 mt-4 md:mt-0">
-                    <span class="text-2xl font-bold text-gray-800">33674 rs</span>
-                    <span class="text-sm font-medium text-gray-500">Waiting approval</span>
-                </div>
-
-                <!-- Arrow 2 -->
-                <svg class="flow-arrow hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
-                    </path>
-                </svg>
-
-                <!-- Stage 3: Approved -->
-                <div class="flex flex-col items-center text-center p-2 mt-4 md:mt-0">
-                    <span class="text-2xl font-bold text-gray-800">500 rs</span>
-                    <span class="text-sm font-medium text-gray-500">Approved</span>
-                </div>
-            </div>
+      <header
+        class="bg-white shadow-lg rounded-t-xl p-6 border-b border-gray-200 flex justify-between items-center"
+      >
+        <h1 class="text-3xl font-bold text-gray-900">My Expenses</h1>
+        <div class="flex space-x-4">
+          <button
+            id="new-expense-button"
+            onclick="toggleNewExpenseForm()"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            New Expense
+          </button>
         </div>
-        <!-- END: Expense Summary Flow Bar -->
+      </header>
 
+      <!-- Expense Summary Flow Bar -->
+      <div
+        class="bg-white border-b border-gray-200 rounded-none shadow-md mb-6"
+      >
+        <div
+          class="p-4 flex flex-col md:flex-row items-center justify-around border-t border-gray-100"
+        >
+          <!-- Stage 1: To Submit -->
+          <div class="flex flex-col items-center text-center p-2">
+            <span class="text-2xl font-bold text-gray-800">5467 rs</span>
+            <span class="text-sm font-medium text-gray-500">To submit</span>
+          </div>
 
-        <main class="bg-white rounded-b-xl shadow-lg">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Employee</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Description</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Date
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Paid
-                                By</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Remarks</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Amount</th>
-                            <th
-                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <!-- Example Row 1: Draft Status (Red Box) -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Sarah</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Restaurant bill</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4th Oct, 2025</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Food</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sarah</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">None</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right text-gray-900">5000 rs
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <span class="status-badge bg-red-100 text-red-800 border border-red-500">Draft</span>
-                            </td>
-                        </tr>
+          <!-- Arrow 1 -->
+          <svg
+            class="flow-arrow hidden md:block"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M14 5l7 7m0 0l-7 7m7-7H3"
+            ></path>
+          </svg>
 
-                        <!-- Example Row 2: Submitted Status (Red Box - as requested) -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Sarah</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Conference fee</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3rd Oct, 2025</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Travel</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Company Card</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">Waiting for approval</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right text-gray-900">33674
-                                rs
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <span
-                                    class="status-badge bg-red-100 text-red-800 border border-red-500">Submitted</span>
-                            </td>
-                        </tr>
+          <!-- Stage 2: Waiting Approval -->
+          <div class="flex flex-col items-center text-center p-2 mt-4 md:mt-0">
+            <span class="text-2xl font-bold text-gray-800">33674 rs</span>
+            <span class="text-sm font-medium text-gray-500"
+              >Waiting approval</span
+            >
+          </div>
 
-                        <!-- Example Row 3: Approved Status (Using Green for clarity) -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Sarah</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Team lunch</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1st Oct, 2025</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Food</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sarah</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">Approved by Manager</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right text-gray-900">500 rs
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <span
-                                    class="status-badge bg-green-100 text-green-800 border border-green-500">Approved</span>
-                            </td>
-                        </tr>
+          <!-- Arrow 2 -->
+          <svg
+            class="flow-arrow hidden md:block"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M14 5l7 7m0 0l-7 7m7-7H3"
+            ></path>
+          </svg>
 
-                        <!-- Empty Row for visual consistency with the sketch -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">&nbsp;</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                            <td class="px-6 py-4 text-sm text-gray-500"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right text-gray-900"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center"></td>
-                        </tr>
-
-                    </tbody>
-                </table>
-            </div>
-        </main>
-
-        <!-- New Expense Form Section (Initially Hidden) -->
-        <div id="new-expense-section" class="bg-white rounded-xl shadow-2xl p-8 mt-8 hidden border border-gray-200">
-            <div class="pb-3 border-b border-gray-200">
-                <h3 class="text-2xl font-semibold text-gray-900">Create New Expense</h3>
-            </div>
-
-            <form onsubmit="handleExpenseSubmit(event)" class="mt-6 space-y-6">
-
-                <!-- Expense Details Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    <!-- Description -->
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                        <input type="text" id="description" required class="form-input mt-1"
-                            placeholder="e.g., Client dinner">
-                    </div>
-
-                    <!-- Expense Date -->
-                    <div>
-                        <label for="expense-date" class="block text-sm font-medium text-gray-700">Expense Date</label>
-                        <input type="date" id="expense-date" required class="form-input mt-1">
-                    </div>
-
-                    <!-- Category -->
-                    <div>
-                        <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
-                        <select id="category" required class="form-input mt-1">
-                            <option value="">Select Category</option>
-                            <option value="Food">Food</option>
-                            <option value="Travel">Travel</option>
-                            <option value="Software">Software</option>
-                            <option value="Utilities">Utilities</option>
-                        </select>
-                    </div>
-
-                    <!-- Total Amount -->
-                    <div>
-                        <label for="amount" class="block text-sm font-medium text-gray-700">Total amount in currency
-                            selection</label>
-                        <div class="flex mt-1">
-                            <input type="number" id="amount" required class="form-input flex-1 rounded-r-none"
-                                min="0.01" step="0.01" placeholder="567">
-                            <select class="form-input w-24 rounded-l-none border-l-0">
-                                <option>USD</option>
-                                <option>EUR</option>
-                                <option selected>INR</option>
-                                <option>GBP</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Remarks -->
-                    <div class="md:col-span-2">
-                        <label for="remarks" class="block text-sm font-medium text-gray-700">Remarks / Detailed
-                            Description</label>
-                        <textarea id="remarks" rows="2" class="form-input mt-1"
-                            placeholder="Add details about the expense..."></textarea>
-                    </div>
-                </div>
-
-                <!-- Approval History Table (Read-Only) -->
-                <div class="pt-6 border-t border-gray-200">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Approval History (Read-Only)</h4>
-                    <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-inner">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Approver
-                                    </th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status
-                                    </th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Timestamp
-                                    </th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Manager
-                                        Email</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-100">
-                                <!-- Dummy Data 1: Approved Step -->
-                                <tr>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Manager J.</td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm">
-                                        <span
-                                            class="status-badge bg-green-100 text-green-800 border border-green-500">Approved</span>
-                                    </td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">12:44 4th Oct, 2025
-                                    </td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">manager.j@company.com
-                                    </td>
-                                </tr>
-                                <!-- Dummy Data 2: Pending Step -->
-                                <tr>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Finance Team</td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm">
-                                        <span
-                                            class="status-badge bg-yellow-100 text-yellow-800 border border-yellow-500">Pending</span>
-                                    </td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">--</td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">finance@company.com
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-
-                <!-- Form Actions -->
-                <div class="pt-4 flex justify-end space-x-3">
-                    <button type="button" onclick="hideNewExpenseForm()"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                        class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700">
-                        Submit Expense
-                    </button>
-                </div>
-            </form>
-
+          <!-- Stage 3: Approved -->
+          <div class="flex flex-col items-center text-center p-2 mt-4 md:mt-0">
+            <span class="text-2xl font-bold text-gray-800">500 rs</span>
+            <span class="text-sm font-medium text-gray-500">Approved</span>
+          </div>
         </div>
+      </div>
+      <!-- END: Expense Summary Flow Bar -->
+
+      <main class="bg-white rounded-b-xl shadow-lg">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Employee
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Description
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Date
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Category
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Paid By
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Remarks
+                </th>
+                <th
+                  class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Amount
+                </th>
+                <th
+                  class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <!-- Example Row 1: Draft Status (Red Box) -->
+               {{ range . }}
+              <tr>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                >
+                  {{ .EmployeeEmail }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ .Description }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ .ExpenseDate }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ .Category }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Sarah
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ .Remarks }}</td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right text-gray-900"
+                >
+                  {{ .Amount }} rs
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span
+                    class="status-badge bg-red-100 text-red-800 border border-red-500"
+                  >
+                    {{ .Status }}</span
+                  >
+                </td>
+              </tr>
+            {{ end }}
+
+              <!-- Empty Row for visual consistency with the sketch -->
+              <tr>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                >
+                  &nbsp;
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                ></td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                ></td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                ></td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                ></td>
+                <td class="px-6 py-4 text-sm text-gray-500"></td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right text-gray-900"
+                ></td>
+                <td class="px-6 py-4 whitespace-nowrap text-center"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+
+      <!-- New Expense Form Section (Initially Hidden) -->
+      <div
+        id="new-expense-section"
+        class="bg-white rounded-xl shadow-2xl p-8 mt-8 hidden border border-gray-200"
+      >
+        <div class="pb-3 border-b border-gray-200">
+          <h3 class="text-2xl font-semibold text-gray-900">
+            Create New Expense
+          </h3>
+        </div>
+
+        <form onsubmit="handleExpenseSubmit(event)" class="mt-6 space-y-6">
+          <!-- Expense Details Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Description -->
+            <div>
+              <label
+                for="description"
+                class="block text-sm font-medium text-gray-700"
+                >Description</label
+              >
+              <input
+                type="text"
+                id="description"
+                required
+                class="form-input mt-1"
+                placeholder="e.g., Client dinner"
+              />
+            </div>
+
+            <!-- Expense Date -->
+            <div>
+              <label
+                for="expense-date"
+                class="block text-sm font-medium text-gray-700"
+                >Expense Date</label
+              >
+              <input
+                type="date"
+                id="expense-date"
+                required
+                class="form-input mt-1"
+              />
+            </div>
+
+            <!-- Category -->
+            <div>
+              <label
+                for="category"
+                class="block text-sm font-medium text-gray-700"
+                >Category</label
+              >
+              <select id="category" required class="form-input mt-1">
+                <option value="">Select Category</option>
+                <option value="Food">Food</option>
+                <option value="Travel">Travel</option>
+                <option value="Software">Software</option>
+                <option value="Utilities">Utilities</option>
+              </select>
+            </div>
+
+            <!-- Total Amount -->
+            <div>
+              <label
+                for="amount"
+                class="block text-sm font-medium text-gray-700"
+                >Total amount in currency selection</label
+              >
+              <div class="flex mt-1">
+                <input
+                  type="number"
+                  id="amount"
+                  required
+                  class="form-input flex-1 rounded-r-none"
+                  min="0.01"
+                  step="0.01"
+                  placeholder="567"
+                />
+                <select class="form-input w-24 rounded-l-none border-l-0">
+                  <option>USD</option>
+                  <option>EUR</option>
+                  <option selected>INR</option>
+                  <option>GBP</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Remarks -->
+            <div class="md:col-span-2">
+              <label
+                for="remarks"
+                class="block text-sm font-medium text-gray-700"
+                >Remarks / Detailed Description</label
+              >
+              <textarea
+                id="remarks"
+                rows="2"
+                class="form-input mt-1"
+                placeholder="Add details about the expense..."
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Approval History Table (Read-Only) -->
+          <div class="pt-6 border-t border-gray-200">
+            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+              Approval History (Read-Only)
+            </h4>
+            <div
+              class="overflow-x-auto rounded-lg border border-gray-200 shadow-inner"
+            >
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                    >
+                      Approver
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                    >
+                      Status
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                    >
+                      Timestamp
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                    >
+                      Manager Email
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                  <!-- Dummy Data 1: Approved Step -->
+                  <tr>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"
+                    >
+                      Manager J.
+                    </td>
+                    <td class="px-4 py-2 whitespace-nowrap text-sm">
+                      <span
+                        class="status-badge bg-green-100 text-green-800 border border-green-500"
+                        >Approved</span
+                      >
+                    </td>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
+                    >
+                      12:44 4th Oct, 2025
+                    </td>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
+                    >
+                      manager.j@company.com
+                    </td>
+                  </tr>
+                  <!-- Dummy Data 2: Pending Step -->
+                  <tr>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"
+                    >
+                      Finance Team
+                    </td>
+                    <td class="px-4 py-2 whitespace-nowrap text-sm">
+                      <span
+                        class="status-badge bg-yellow-100 text-yellow-800 border border-yellow-500"
+                        >Pending</span
+                      >
+                    </td>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
+                    >
+                      --
+                    </td>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
+                    >
+                      finance@company.com
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="pt-4 flex justify-end space-x-3">
+            <button
+              type="button"
+              onclick="hideNewExpenseForm()"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700"
+            >
+              Submit Expense
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script>
-        /** Toggles the visibility of the new expense form section. */
-        function toggleNewExpenseForm() {
-            const formSection = document.getElementById('new-expense-section');
-            const button = document.getElementById('new-expense-button');
+      /** Toggles the visibility of the new expense form section. */
+      function toggleNewExpenseForm() {
+        const formSection = document.getElementById("new-expense-section");
+        const button = document.getElementById("new-expense-button");
 
-            if (formSection.classList.contains('hidden')) {
-                // Show the form
-                formSection.classList.remove('hidden');
-                // Change button to 'Hide Form' and change color to red
-                button.innerHTML = `
+        if (formSection.classList.contains("hidden")) {
+          // Show the form
+          formSection.classList.remove("hidden");
+          // Change button to 'Hide Form' and change color to red
+          button.innerHTML = `
                     <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                     Hide Form
                 `;
-                button.classList.remove('bg-indigo-600', 'hover:bg-indigo-700', 'focus:ring-indigo-500');
-                button.classList.add('bg-red-600', 'hover:bg-red-700', 'focus:ring-red-500');
-
-            } else {
-                // Hide the form
-                hideNewExpenseForm();
-            }
+          button.classList.remove(
+            "bg-indigo-600",
+            "hover:bg-indigo-700",
+            "focus:ring-indigo-500"
+          );
+          button.classList.add(
+            "bg-red-600",
+            "hover:bg-red-700",
+            "focus:ring-red-500"
+          );
+        } else {
+          // Hide the form
+          hideNewExpenseForm();
         }
+      }
 
-        /** Hides the new expense form section and resets the button state. */
-        function hideNewExpenseForm() {
-            const formSection = document.getElementById('new-expense-section');
-            const button = document.getElementById('new-expense-button');
+      /** Hides the new expense form section and resets the button state. */
+      function hideNewExpenseForm() {
+        const formSection = document.getElementById("new-expense-section");
+        const button = document.getElementById("new-expense-button");
 
-            formSection.classList.add('hidden');
-            // Reset button text and color
-            button.innerHTML = 'New Expense';
-            button.classList.remove('bg-red-600', 'hover:bg-red-700', 'focus:ring-red-500');
-            button.classList.add('bg-indigo-600', 'hover:bg-indigo-700', 'focus:ring-indigo-500');
-        }
+        formSection.classList.add("hidden");
+        // Reset button text and color
+        button.innerHTML = "New Expense";
+        button.classList.remove(
+          "bg-red-600",
+          "hover:bg-red-700",
+          "focus:ring-red-500"
+        );
+        button.classList.add(
+          "bg-indigo-600",
+          "hover:bg-indigo-700",
+          "focus:ring-indigo-500"
+        );
+      }
 
-        /** Handles the expense form submission. */
-        function handleExpenseSubmit(event) {
-            event.preventDefault();
+      /** Handles the expense form submission. */
+      function handleExpenseSubmit(event) {
+        event.preventDefault();
 
-            // Collect form data (for simulation)
-            const formData = {
-                description: document.getElementById('description').value,
-                date: document.getElementById('expense-date').value,
-                category: document.getElementById('category').value,
-                // paidBy field has been removed
-                amount: document.getElementById('amount').value,
-                remarks: document.getElementById('remarks').value,
-                // currency is hardcoded as INR for simplicity in this example
-            };
+        // Collect form data (for simulation)
+        const formData = {
+          description: document.getElementById("description").value,
+          date: document.getElementById("expense-date").value,
+          category: document.getElementById("category").value,
+          // paidBy field has been removed
+          amount: document.getElementById("amount").value,
+          remarks: document.getElementById("remarks").value,
+          // currency is hardcoded as INR for simplicity in this example
+        };
 
-            console.log("Submitting new expense:", formData);
-            // Replaced alert() with console log
-            console.log("SUCCESS: Expense submitted successfully! Form data is in the console log.");
+        console.log("Submitting new expense:", formData);
+        // Replaced alert() with console log
+        console.log(
+          "SUCCESS: Expense submitted successfully! Form data is in the console log."
+        );
 
-            // Reset the form fields
-            event.target.reset();
+        // Reset the form fields
+        event.target.reset();
 
-            // Hide form after submission
-            hideNewExpenseForm();
-        }
+        // Hide form after submission
+        hideNewExpenseForm();
+      }
 
-        // --- EXISTING SETUP ---
+      // --- EXISTING SETUP ---
 
-        function loadExpenseList() {
-            console.log("Loading initial expense list...");
-        }
+      function loadExpenseList() {
+        console.log("Loading initial expense list...");
+      }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadExpenseList();
-        });
+      document.addEventListener("DOMContentLoaded", () => {
+        loadExpenseList();
+      });
     </script>
-
-</body>
-
+  </body>
 </html>

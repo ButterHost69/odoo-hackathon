@@ -36,6 +36,5 @@ func main() {
 
 	r.POST("/approval/:managerEmail/:expenseID/:status", handler.ApproveExpense)
 
-
 	r.Run(ipAddr)
 }

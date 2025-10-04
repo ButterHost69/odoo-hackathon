@@ -13,6 +13,10 @@ import (
 
 func RenderInitPage(ctx *gin.Context) {
 	session_token := utils.GetSessionTokenFromCookie(ctx.Request)
+	if session_token == "" {
+		RenderAuthPage(ctx, "")
+		return
+	}
 
 	email, err := db.GetEmailUsingSessionToken(session_token)
 	if err != nil {
@@ -31,10 +35,17 @@ func RenderInitPage(ctx *gin.Context) {
 		return
 	}
 
-	if user.Role == "employee" {
-		RenderEmployeePage(ctx)
+	switch user.Role {
+	case "employee":
+		expenses, err := db.GetExpensesByEmployeeEmail(email)
+		if err != nil {
+			log.Println("[handler.RenderInitPage] Error while Getting User Expenses Using Email:", err)
+			fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+			return
+		}
+		RenderEmployeePage(ctx, expenses)
 		return
-	} else if user.Role != "manager" {
+	case "manager":
 		RenderManagerPage(ctx, email)
 		return
 	}
@@ -70,13 +81,13 @@ func RenderAdminPage(ctx *gin.Context, users []db.User) {
 	}
 }
 
-func RenderEmployeePage(ctx *gin.Context) {
+func RenderEmployeePage(ctx *gin.Context, expenses []db.Expense) {
 	ctx.Header("Content-Type", "text/html")
 
-	tmpl := template.Must(template.ParseFiles("./templates/user-page.html"))
-	err := tmpl.Execute(ctx.Writer, nil)
+	tmpl := template.Must(template.ParseFiles("./templates/employee.html"))
+	err := tmpl.Execute(ctx.Writer, expenses)
 	if err != nil {
-		log.Println("[handler.RenderUserPage] Error while parsing user-page.html: ", err)
+		log.Println("[handler.RenderUserPage] Error while parsing employee.html: ", err)
 		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
 	}
 }
