@@ -442,7 +442,6 @@ func GetUserDetailsUsingEmail(email string) (User, error) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			fmt.Printf("[db.GetUserDetailsUsingEmail] No user found for email: %s\n", email)
-			// TODO: fix this with new err
 			return User{}, errs.ErrUserEmailDoesNotExist
 		}
 		fmt.Printf("[db.GetUserDetailsUsingEmail] Error scanning user details: %v\n", err)
@@ -452,4 +451,24 @@ func GetUserDetailsUsingEmail(email string) (User, error) {
 	fmt.Printf("[LOG] [db.GetUserDetailsUsingEmail] Successfully fetched details for user: %s\n", email)
 
 	return user, nil
+}
+
+func GetEmailUsingSessionToken(session_token string) (string, error) {
+	query := "SELECT email FROM auth WHERE session_token = $1"
+
+	var email string
+
+	err := db.QueryRow(query, session_token).Scan(&email)
+	if err != nil {
+		// Check if the error is specifically because no record was found.
+		if err == sql.ErrNoRows {
+			return "", errs.ErrSessionTokenDoesNotExist
+		}
+		fmt.Printf("[db.GetEmailUsingSessionToken] Database error: %v\n", err)
+		return "", err
+	}
+
+	fmt.Printf("[LOG] [db.GetEmailUsingSessionToken] Successfully found email for the given session token.\n")
+
+	return email, nil
 }
