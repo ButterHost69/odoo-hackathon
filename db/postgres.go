@@ -103,7 +103,7 @@ func InsertNewRecordInAuthDB(email string, password string) error {
 	return nil
 }
 
-func InsertNewCompany(name, country, currency, adminEmail string, managers []ManagerInfo) error {
+func InsertNewCompany(name, country, currency, adminEmail string, managers []ManagerInfo) (int, error) {
 	query := `INSERT INTO company 
               (company_name, country, currency, admin_email, managers) 
               VALUES ($1, $2, $3, $4, $5)`
@@ -111,18 +111,34 @@ func InsertNewCompany(name, country, currency, adminEmail string, managers []Man
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		fmt.Println("[db.InsertNewCompany] Prepare Error: ", err.Error())
-		return err
+		return -1, err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(name, country, currency, adminEmail, pq.Array(managers))
 	if err != nil {
 		fmt.Println("[db.InsertNewCompany] Exec Error: ", err.Error())
-		return err
+		return -1, err
 	}
 
 	fmt.Println("[LOG] [db.InsertNewCompany] Added New Company Record For: ", name)
-	return nil
+
+	query = "SELECT company_id FROM company WHERE admin_email = $1"
+
+	var company_id int
+	err = db.QueryRow(query, adminEmail).Scan(&company_id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return -1, errs.ErrAdminEmailNotFound
+		}
+		// For all other potential errors (connection issues, etc.), return the original error.
+		fmt.Printf("[db.InsertNewCompany] Database error: %v\n", err)
+		return -1, err
+	}
+
+	fmt.Printf("[LOG] [db.InsertNewCompany] Successfully found company id for the given admin email.\n")
+
+	return company_id, nil
 }
 
 func InsertNewUserAccount(email, name, role, managerEmail, managerName string, companyID int) error {

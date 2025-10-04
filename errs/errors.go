@@ -9,6 +9,11 @@ var (
 	ErrSessionToken             = errors.New("INVALID SESSION TOKEN")
 )
 
+// COMPANY
+var (
+	ErrAdminEmailNotFound = errors.New("COMPANY EMAIL NOT FOUND")
+)
+
 // USER
 var (
 	ErrUserEmailDoesNotExist = errors.New("USER EMAIL DOES NOT EXIST")
