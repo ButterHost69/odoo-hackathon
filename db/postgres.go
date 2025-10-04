@@ -385,3 +385,39 @@ func UpdateManagerListInCompanyUsingCompanyID(company_id int, managers []Manager
 	return nil
 
 }
+
+func UpdateRulesUsingEmailID(email string, rules Rules) error {
+	query := `UPDATE rules SET
+                is_manager_approver = $1,
+                min_approval_percent = $2,
+                is_approval_sequential = $3,
+                approvers = $4
+              WHERE employee_email = $5`
+
+	result, err := db.Exec(query,
+		rules.IsManagerApprover,
+		rules.MinApprovalPercent,
+		rules.IsApprovalSequential,
+		pq.Array(rules.Approvers), // This works perfectly with ApproverInfoSlice
+		email,
+	)
+	if err != nil {
+		fmt.Printf("[db.UpdateRulesUsingEmailID] Error executing update: %v\n", err)
+		return err
+	}
+
+	// Check if any rows were actually modified.
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Printf("[db.UpdateRulesUsingEmailID] Error checking rows affected: %v\n", err)
+		return err
+	}
+
+	// If no rows are affected, the email was not found in the table.
+	if rowsAffected == 0 {
+		return fmt.Errorf("no rules found for email %s to update", email)
+	}
+
+	fmt.Printf("[LOG] [db.UpdateRulesUsingEmailID] Successfully updated rules for email: %s\n", email)
+	return nil
+}

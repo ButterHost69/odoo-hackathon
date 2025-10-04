@@ -53,6 +53,13 @@ func (a *ApproverInfoSlice) Scan(src interface{}) error {
 	return pq.Array(a).Scan(src)
 }
 
+// Value implements the driver.Valuer interface, telling the pq driver
+// how to format the struct when writing to the database.
+// Value implements the driver.Valuer interface.
+func (a ApproverInfo) Value() (driver.Value, error) {
+	return fmt.Sprintf("(%s,%t)", a.ApproverEmail, a.ApprovalRequired), nil
+}
+
 type Rules struct {
 	EmployeeEmail        string
 	IsManagerApprover    bool
