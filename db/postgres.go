@@ -86,7 +86,12 @@ func UpdateSessionTokenInAuthDB(email string, session_token string) error {
 }
 
 func InsertNewRecordInAuthDB(email string, password string) error {
-	query := "INSERT INTO auth (email, password, session_token) VALUE (?,?,?)"
+	// query := "INSERT INTO auth (email, password, session_token) VALUE (?,?,?)"
+
+	query := `INSERT INTO auth
+              (email, password, session_token) 
+              VALUES ($1, $2, $3)`
+
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		fmt.Println("[db.InsertNewRecordAuthInDB] Error Occured : \n", err.Error())
