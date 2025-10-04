@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/ButterHost69/odoo-hackathon/errs"
 	"github.com/lib/pq" // registers driver
 )
 
@@ -420,4 +421,35 @@ func UpdateRulesUsingEmailID(email string, rules Rules) error {
 
 	fmt.Printf("[LOG] [db.UpdateRulesUsingEmailID] Successfully updated rules for email: %s\n", email)
 	return nil
+}
+
+func GetUserDetailsUsingEmail(email string) (User, error) {
+	query := `SELECT
+                email, name, role, manager_email, manager_name, company_id
+              FROM user_account WHERE email = $1`
+
+	var user User
+
+	err := db.QueryRow(query, email).Scan(
+		&user.Email,
+		&user.Name,
+		&user.Role,
+		&user.ManagerEmail,
+		&user.ManagerName,
+		&user.CompanyID,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Printf("[db.GetUserDetailsUsingEmail] No user found for email: %s\n", email)
+			// TODO: fix this with new err
+			return User{}, errs.ErrUserEmailDoesNotExist
+		}
+		fmt.Printf("[db.GetUserDetailsUsingEmail] Error scanning user details: %v\n", err)
+		return User{}, err
+	}
+
+	fmt.Printf("[LOG] [db.GetUserDetailsUsingEmail] Successfully fetched details for user: %s\n", email)
+
+	return user, nil
 }
