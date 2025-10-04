@@ -75,7 +75,7 @@ func UpdateSessionTokenInAuthDB(email string, session_token string) error {
 		return err
 	}
 
-	_, err = stmt.Exec(email, session_token)
+	_, err = stmt.Exec(session_token, email)
 	if err != nil {
 		fmt.Println("[db.UpdateSessionTokenInDB] Error Occured: \n", err.Error())
 		return err

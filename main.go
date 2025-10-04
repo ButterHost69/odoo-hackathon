@@ -29,9 +29,7 @@ func main() {
 	fmt.Println("Server Running on: ", ipAddr)
 	r := gin.Default()
 
-	r.GET("/", func(ctx *gin.Context) {
-		handler.RenderAuthPage(ctx, "")
-	})
+	r.GET("/", handler.RenderInitPage)
 
 	r.POST("/register", handler.CreateCompany)
 	r.POST("/login", handler.Login)
