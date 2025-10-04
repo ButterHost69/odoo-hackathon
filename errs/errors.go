@@ -23,3 +23,7 @@ var (
 var (
 	ErrSessionTokenDoesNotExist = errors.New("SESSION TOKEN DOES NOT EXIST")
 )
+
+// UTILS
+var ErrCountryNotFound = errors.New("country not found")
+var ErrCurrencyNotFound = errors.New("no currency found")
