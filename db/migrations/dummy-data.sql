@@ -27,11 +27,13 @@ INSERT INTO company (
 );
 
 INSERT INTO user_account (email, name, role, manager_email, manager_name, company_id) VALUES
+('admin@nemu.com', 'Admin', 'admin', '', '', 1),
 ('palash@nemu.com', 'Palash', 'manager', 'admin@nemu.com', 'Admin', 1),
 ('prachin@nemu.com', 'Prachin', 'manager', 'admin@nemu.com', 'Admin', 1),
 ('parth@nemu.com', 'Parth', 'employee', 'palash@nemu.com', 'Palash', 1);
 
 INSERT INTO user_account (email, name, role, manager_email, manager_name, company_id) VALUES
+('admin@openai.com', 'Admin', 'admin', '', '', 2),
 ('palash@openai.com', 'Palash', 'manager', 'admin@openai.com', 'Admin', 2),
 ('konark@openai.com', 'Konark', 'manager', 'admin@openai.com', 'Admin', 2);
 
@@ -43,7 +45,7 @@ INSERT INTO auth (email, password, session_token) VALUES
 ('konark@openai.com', 'pass654', 'token654');
 
 INSERT INTO rules (
-    empployee_email,
+    employee_email,
     is_manager_approver,
     min_approval_percent,
     is_approval_sequential,

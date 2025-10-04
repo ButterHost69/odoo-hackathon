@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/ButterHost69/odoo-hackathon/db"
+	"github.com/ButterHost69/odoo-hackathon/handler"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -27,5 +28,13 @@ func main() {
 
 	fmt.Println("Server Running on: ", ipAddr)
 	r := gin.Default()
+
+	r.GET("/", func(ctx *gin.Context) {
+		handler.RenderAuthPage(ctx, "")
+	})
+
+	r.POST("/register", handler.CreateCompany)
+	r.POST("/login", handler.Login)
+
 	r.Run(ipAddr)
 }

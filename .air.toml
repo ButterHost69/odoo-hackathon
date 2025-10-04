@@ -1,0 +1,8 @@
+[build]
+bin = "tmp/main.exe" # Temporary binary file
+cmd = "go build -o ./tmp/main.exe main.go" # Build command
+include_ext = ["go"] # File extensions to watch
+exclude_dir = ["tmp"] # Directories to ignore
+
+[misc]
+  clean_on_exit = false

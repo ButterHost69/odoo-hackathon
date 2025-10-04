@@ -18,7 +18,7 @@
         </h2>
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" class="space-y-6">
+          <form action="/login" method="POST" class="space-y-6">
             <div>
               <label
                 for="email"
@@ -57,6 +57,11 @@
               </div>
             </div>
 
+            <!-- Error Message -->
+            <div id="error-message" class="mt-2 text-sm text-red-600">
+              {{ . }}
+            </div>
+
             <div>
               <button
                 type="submit"
@@ -89,7 +94,7 @@
         </h2>
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" class="space-y-6">
+          <form action="/register" method="POST" class="space-y-6">
             <div>
               <label
                 for="company-name"
@@ -215,6 +220,11 @@
                   <!-- Country options will be populated here -->
                 </div>
               </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="mt-2 text-sm text-red-600">
+              {{ . }}
             </div>
 
             <div>
@@ -352,7 +362,7 @@
           strengthDiv.classList.remove("hidden");
 
           if (validatePassword(password)) {
-            requirementsDiv.textContent = "✓ Strong password";
+            requirementsDiv.textContent = "Strong password";
             requirementsDiv.className = "text-green-600";
             document
               .getElementById("signup-password")
@@ -390,7 +400,7 @@
 
           if (password === confirmPassword) {
             matchDiv.innerHTML =
-              '<div class="text-green-600">✓ Passwords match</div>';
+              '<div class="text-green-600">Passwords match</div>';
             document
               .getElementById("confirm-password")
               .classList.remove("border-red-300");
