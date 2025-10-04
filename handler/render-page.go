@@ -5,6 +5,7 @@ import (
 	"log"
 	"text/template"
 
+	"github.com/ButterHost69/odoo-hackathon/db"
 	"github.com/ButterHost69/odoo-hackathon/errs"
 	"github.com/gin-gonic/gin"
 )
@@ -20,11 +21,11 @@ func RenderAuthPage(ctx *gin.Context, error_msg string) {
 	}
 }
 
-func RenderAdminPage(ctx *gin.Context) {
+func RenderAdminPage(ctx *gin.Context, users []db.User) {
 	ctx.Header("Content-Type", "text/html")
 
 	tmpl := template.Must(template.ParseFiles("./templates/admin-page.html"))
-	err := tmpl.Execute(ctx.Writer, nil)
+	err := tmpl.Execute(ctx.Writer, users)
 	if err != nil {
 		log.Println("[handler.RenderAdminPage] Error while parsing admin-page.html: ", err)
 		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)

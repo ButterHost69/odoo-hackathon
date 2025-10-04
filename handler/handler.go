@@ -18,8 +18,6 @@ func CreateCompany(ctx *gin.Context) {
 	password := ctx.PostForm("password")
 	country := ctx.PostForm("country")
 
-	// TODO: Validation
-
 	currency_symbol, err := utils.GetCurrencyUsingCountryName(country)
 	if err != nil {
 		log.Println("[handler.CreateCompany] Error while Getting Currency using Country Name:", err)
@@ -87,8 +85,15 @@ func Login(ctx *gin.Context) {
 
 	utils.SetSessionTokenInCookie(ctx.Writer, new_token)
 
+	users, err := db.GetAllUsersDetailsUsingCompanyID(user.CompanyID)
+	if err != nil {
+		log.Println("[handler.Login] Error while Getting All Users Details Using Company ID:", err)
+		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+		return
+	}
+
 	if user.Role == "admin" {
-		RenderAdminPage(ctx)
+		RenderAdminPage(ctx, users)
 	} else {
 		RenderUserPage(ctx)
 	}
