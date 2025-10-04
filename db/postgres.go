@@ -493,3 +493,34 @@ func GetEmailUsingSessionToken(session_token string) (string, error) {
 
 	return email, nil
 }
+
+func GetExpenseIDsByManagerEmail(managerEmail string) ([]int, error) {
+    query := "SELECT expense_id FROM approval_status WHERE manager_email = $1"
+
+    rows, err := db.Query(query, managerEmail)
+    if err != nil {
+        fmt.Printf("[db.GetExpenseIDsByManagerEmail] Query error: %v\n", err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    var expenseIDs []int
+
+    for rows.Next() {
+        var id int
+        if err := rows.Scan(&id); err != nil {
+            fmt.Printf("[db.GetExpenseIDsByManagerEmail] Scan error: %v\n", err)
+            return nil, err
+        }
+        expenseIDs = append(expenseIDs, id)
+    }
+
+    if err = rows.Err(); err != nil {
+        fmt.Printf("[db.GetExpenseIDsByManagerEmail] Rows iteration error: %v\n", err)
+        return nil, err
+    }
+
+    fmt.Printf("[LOG] [db.GetExpenseIDsByManagerEmail] Found %d expense(s) for manager %s\n", len(expenseIDs), managerEmail)
+    
+    return expenseIDs, nil
+}
