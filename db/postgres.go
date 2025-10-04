@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/ButterHost69/odoo-hackathon/models"
 	"github.com/lib/pq" // registers driver
 )
 
@@ -291,4 +292,35 @@ func GetCompanyIDByAdminEmail(adminEmail string) (int, error) {
 
 	fmt.Printf("[LOG] [db.GetCompanyIDByAdminEmail] Found company_id %d for admin '%s'\n", companyID, adminEmail)
 	return companyID, nil
+}
+
+func GetAllUsersDetailsUsingCompanyID(company_id int) ([]models.User, error) {
+	query := "SELECT email, name, role, manager_email, manager_name, company_id FROM user_account WHERE company_id = $1"
+
+	rows, err := db.Query(query, company_id)
+	if err != nil {
+		fmt.Printf("[db.GetAllUsersDetailsUsingCompanyID] Query Error: %v\n", err)
+		return nil, err // Return nil slice and the error.
+	}
+	defer rows.Close()
+
+	var users []models.User
+
+	for rows.Next() {
+		var user models.User
+		if err := rows.Scan(&user.Email, &user.Name, &user.Role, &user.ManagerEmail, &user.ManagerName, &user.CompanyID); err != nil {
+			fmt.Printf("[db.GetAllUsersDetailsUsingCompanyID] Scan Error: %v\n", err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		fmt.Printf("[db.GetAllUsersDetailsUsingCompanyID] Rows Iteration Error: %v\n", err)
+		return nil, err
+	}
+
+	fmt.Printf("[LOG] [db.GetAllUsersDetailsUsingCompanyID] Fetched %d users for company_id: %d\n", len(users), company_id)
+
+	return users, nil
 }
