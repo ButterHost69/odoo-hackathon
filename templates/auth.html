@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html class="h-full bg-white">
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full">
+
+<div id="main-auth-div" class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+    <!-- Login Form -->
+    <div id="login-form" class="sm:mx-auto sm:w-full sm:max-w-sm">
+        <!-- <img src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company" class="mx-auto h-10 w-auto" /> -->
+        <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Sign in to your account</h2>
+        
+        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+            <form action="#" method="POST" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm/6 font-medium text-gray-900">Email address</label>
+                    <div class="mt-2">
+                        <input id="email" type="email" name="email" required autocomplete="email" class="block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between">
+                        <label for="password" class="block text-sm/6 font-medium text-gray-900">Password</label>
+                    </div>
+                    <div class="mt-2">
+                        <input id="password" type="password" name="password" required autocomplete="current-password" class="block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
+                </div>
+            </form>
+
+            <p class="mt-10 text-center text-sm/6 text-gray-500">
+                Not a member?
+                <button onclick="showSignupForm()" class="font-semibold text-indigo-600 hover:text-indigo-500 cursor-pointer">Create an account</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signup-form" class="sm:mx-auto sm:w-full sm:max-w-sm hidden">
+        <!-- <img src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company" class="mx-auto h-10 w-auto" /> -->
+        <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Create your account</h2>
+        
+        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+            <form action="#" method="POST" class="space-y-6">
+                <div>
+                    <label for="company-name" class="block text-sm/6 font-medium text-gray-900">Company name</label>
+                    <div class="mt-2">
+                        <input id="company-name" type="text" name="company-name" required class="block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="signup-email" class="block text-sm/6 font-medium text-gray-900">Email address</label>
+                    <div class="mt-2">
+                        <input id="signup-email" type="email" name="email" required autocomplete="email" class="block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="signup-password" class="block text-sm/6 font-medium text-gray-900">Password</label>
+                    <div class="mt-2">
+                        <input id="signup-password" type="password" name="password" required autocomplete="new-password" class="block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+                        <div id="password-strength" class="mt-2 text-xs hidden">
+                            <div class="text-red-600" id="password-requirements">
+                                Password must contain: 8+ characters, uppercase, lowercase, number, and @ symbol
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="confirm-password" class="block text-sm/6 font-medium text-gray-900">Confirm password</label>
+                    <div class="mt-2">
+                        <input id="confirm-password" type="password" name="confirm-password" required autocomplete="new-password" class="block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+                        <div id="password-match" class="mt-2 text-xs hidden">
+                            <div class="text-red-600">Passwords do not match</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="country" class="block text-sm/6 font-medium text-gray-900">Country</label>
+                    <div class="mt-2 relative">
+                        <div class="relative">
+                            <input id="country" type="text" name="country" required placeholder="Search for your country..." class="block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 pr-10 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" autocomplete="off" />
+                            <button type="button" id="country-dropdown-btn" onclick="toggleCountryDropdown()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="country-dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm hidden">
+                            <!-- Country options will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Create account</button>
+                </div>
+            </form>
+
+            <p class="mt-10 text-center text-sm/6 text-gray-500">
+                Already a member?
+                <button onclick="showLoginForm()" class="font-semibold text-indigo-600 hover:text-indigo-500 cursor-pointer">Sign in</button>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Country data
+const countries = [
+    'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
+    'Bahrain', 'Bangladesh', 'Belarus', 'Belgium', 'Brazil', 'Bulgaria', 'Cambodia', 'Canada',
+    'Chile', 'China', 'Colombia', 'Croatia', 'Czech Republic', 'Denmark', 'Egypt', 'Estonia',
+    'Finland', 'France', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Hungary', 'Iceland', 'India',
+    'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Japan', 'Jordan', 'Kazakhstan',
+    'Kenya', 'Kuwait', 'Latvia', 'Lebanon', 'Lithuania', 'Luxembourg', 'Malaysia', 'Mexico',
+    'Morocco', 'Netherlands', 'New Zealand', 'Nigeria', 'Norway', 'Pakistan', 'Philippines',
+    'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Saudi Arabia', 'Singapore', 'Slovakia',
+    'Slovenia', 'South Africa', 'South Korea', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland',
+    'Thailand', 'Turkey', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States',
+    'Vietnam', 'Yemen'
+];
+
+function showLoginForm() {
+    document.getElementById('login-form').classList.remove('hidden');
+    document.getElementById('signup-form').classList.add('hidden');
+}
+
+function showSignupForm() {
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('signup-form').classList.remove('hidden');
+}
+
+// Password validation
+function validatePassword(password) {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@]).{8,}$/;
+    return regex.test(password);
+}
+
+function checkPasswordStrength() {
+    const password = document.getElementById('signup-password').value;
+    const strengthDiv = document.getElementById('password-strength');
+    const requirementsDiv = document.getElementById('password-requirements');
+    
+    if (password.length > 0) {
+        strengthDiv.classList.remove('hidden');
+        
+        if (validatePassword(password)) {
+            requirementsDiv.textContent = '✓ Strong password';
+            requirementsDiv.className = 'text-green-600';
+            document.getElementById('signup-password').classList.remove('border-red-300');
+            document.getElementById('signup-password').classList.add('border-green-300');
+        } else {
+            requirementsDiv.textContent = 'Password must contain: 8+ characters, uppercase, lowercase, number, and @ symbol';
+            requirementsDiv.className = 'text-red-600';
+            document.getElementById('signup-password').classList.remove('border-green-300');
+            document.getElementById('signup-password').classList.add('border-red-300');
+        }
+    } else {
+        strengthDiv.classList.add('hidden');
+        document.getElementById('signup-password').classList.remove('border-red-300', 'border-green-300');
+    }
+}
+
+function checkPasswordMatch() {
+    const password = document.getElementById('signup-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const matchDiv = document.getElementById('password-match');
+    
+    if (confirmPassword.length > 0) {
+        matchDiv.classList.remove('hidden');
+        
+        if (password === confirmPassword) {
+            matchDiv.innerHTML = '<div class="text-green-600">✓ Passwords match</div>';
+            document.getElementById('confirm-password').classList.remove('border-red-300');
+            document.getElementById('confirm-password').classList.add('border-green-300');
+        } else {
+            matchDiv.innerHTML = '<div class="text-red-600">Passwords do not match</div>';
+            document.getElementById('confirm-password').classList.remove('border-green-300');
+            document.getElementById('confirm-password').classList.add('border-red-300');
+        }
+    } else {
+        matchDiv.classList.add('hidden');
+        document.getElementById('confirm-password').classList.remove('border-red-300', 'border-green-300');
+    }
+}
+
+// Country search functionality
+function filterCountries() {
+    const input = document.getElementById('country');
+    const dropdown = document.getElementById('country-dropdown');
+    const searchTerm = input.value.toLowerCase();
+    
+    if (searchTerm.length > 0) {
+        const filteredCountries = countries.filter(country => 
+            country.toLowerCase().includes(searchTerm)
+        );
+        
+        if (filteredCountries.length > 0) {
+            dropdown.innerHTML = filteredCountries.map(country => 
+                `<div class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white" onclick="selectCountry('${country}')">${country}</div>`
+            ).join('');
+            dropdown.classList.remove('hidden');
+        } else {
+            dropdown.innerHTML = '<div class="cursor-pointer select-none relative py-2 pl-3 pr-9 text-gray-500">No countries found</div>';
+            dropdown.classList.remove('hidden');
+        }
+    } else {
+        // Show all countries when search is empty
+        showAllCountries();
+    }
+}
+
+function showAllCountries() {
+    const dropdown = document.getElementById('country-dropdown');
+    dropdown.innerHTML = countries.map(country => 
+        `<div class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white" onclick="selectCountry('${country}')">${country}</div>`
+    ).join('');
+    dropdown.classList.remove('hidden');
+}
+
+function toggleCountryDropdown() {
+    const dropdown = document.getElementById('country-dropdown');
+    if (dropdown.classList.contains('hidden')) {
+        showAllCountries();
+    } else {
+        dropdown.classList.add('hidden');
+    }
+}
+
+function selectCountry(country) {
+    document.getElementById('country').value = country;
+    document.getElementById('country-dropdown').classList.add('hidden');
+}
+
+function hideCountryDropdown() {
+    setTimeout(() => {
+        document.getElementById('country-dropdown').classList.add('hidden');
+    }, 200);
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Password validation events
+    const signupPassword = document.getElementById('signup-password');
+    const confirmPassword = document.getElementById('confirm-password');
+    const countryInput = document.getElementById('country');
+    
+    if (signupPassword) {
+        signupPassword.addEventListener('input', checkPasswordStrength);
+    }
+    
+    if (confirmPassword) {
+        confirmPassword.addEventListener('input', checkPasswordMatch);
+    }
+    
+    // Country search events
+    if (countryInput) {
+        countryInput.addEventListener('input', filterCountries);
+        countryInput.addEventListener('click', showAllCountries);
+        countryInput.addEventListener('blur', hideCountryDropdown);
+    }
+});
+</script>
+
+</body>
+</html>
