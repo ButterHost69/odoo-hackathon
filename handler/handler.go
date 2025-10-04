@@ -85,18 +85,70 @@ func Login(ctx *gin.Context) {
 
 	utils.SetSessionTokenInCookie(ctx.Writer, new_token)
 
-	if user.Role == "admin" {
-		users, err := db.GetAllUsersDetailsUsingCompanyID(user.CompanyID)
-		if err != nil {
-			log.Println("[handler.Login] Error while Getting All Users Details Using Company ID:", err)
-			fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
-			return
-		}
+	users, err := db.GetAllUsersDetailsUsingCompanyID(user.CompanyID)
+	if err != nil {
+		log.Println("[handler.Login] Error while Getting All Users Details Using Company ID:", err)
+		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+		return
+	}
 
+	switch user.Role {
+	case "admin":
 		RenderAdminPage(ctx, users)
-	} else if user.Role == "manager" {
-		RenderManagerPage(ctx, email)
-	} else {
+	case "manager":
+		RenderManagerPage(ctx, "Dummy@email.com")
+	default:
 		RenderEmployeePage(ctx)
 	}
+}
+
+func CreateUser(ctx *gin.Context) {
+	// Set the Content-Type header to "text/html"
+	ctx.Header("Content-Type", "text/html")
+
+	session_token := utils.GetSessionTokenFromCookie(ctx.Request)
+	email, err := db.GetEmailUsingSessionToken(session_token)
+	if err != nil {
+		if err == errs.ErrSessionTokenDoesNotExist {
+			RenderAuthPage(ctx, "")
+		} else {
+			log.Println("[handler.CreateUser] Error while Getting Email from Session Token:", err)
+			fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+		}
+		return
+	}
+
+	admin, err := db.GetUserDetailsUsingEmail(email)
+	if err != nil {
+		log.Println("[handler.CreateUser] Error while Getting User Details Using Email:", err)
+		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+		return
+	}
+
+	if admin.Role != "admin" {
+		fmt.Fprint(ctx.Writer, errs.UNAUTHORIZED_ACCESS_MESSAGE)
+		return
+	}
+
+	new_name := ctx.PostForm("new-user-name")
+	new_email := ctx.PostForm("new-user-email")
+	new_role := ctx.PostForm("new-user-role")
+	new_manager_name := ctx.PostForm("new-manager-name")
+	new_manager_email := ctx.PostForm("new-manager-email")
+
+	err = db.InsertNewUserAccount(new_email, new_name, new_role, new_manager_email, new_manager_name, admin.CompanyID)
+	if err != nil {
+		log.Println("[handler.CreateUser] Error while Inserting New User Account:", err)
+		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+		return
+	}
+
+	users, err := db.GetAllUsersDetailsUsingCompanyID(admin.CompanyID)
+	if err != nil {
+		log.Println("[handler.Login] Error while Getting All Users Details Using Company ID:", err)
+		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+		return
+	}
+
+	RenderAdminPage(ctx, users)
 }

@@ -18,29 +18,27 @@ func RenderInitPage(ctx *gin.Context) {
 	if err != nil {
 		if err == errs.ErrSessionTokenDoesNotExist {
 			RenderAuthPage(ctx, "")
-			fmt.Print("Haa")
 		} else {
 			log.Println("[handler.RenderInitPage] Error while Getting Email from Session Token:", err)
 			fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
 		}
 		return
 	}
-	fmt.Print("Yo")
 	user, err := db.GetUserDetailsUsingEmail(email)
 	if err != nil {
 		log.Println("[handler.RenderInitPage] Error while Getting User Details Using Email:", err)
 		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
 		return
 	}
-	fmt.Print(user)
 
 	if user.Role == "employee" {
 		RenderEmployeePage(ctx)
 		return
-	} else if user.Role != "manager"{
+	} else if user.Role != "manager" {
 		RenderManagerPage(ctx, email)
 		return
 	}
+
 	users, err := db.GetAllUsersDetailsUsingCompanyID(user.CompanyID)
 	if err != nil {
 		log.Println("[handler.RenderInitPage] Error while Getting All Users Details Using Company ID:", err)
@@ -82,4 +80,3 @@ func RenderEmployeePage(ctx *gin.Context) {
 		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
 	}
 }
-

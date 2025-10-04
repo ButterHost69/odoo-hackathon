@@ -4,6 +4,7 @@ import "errors"
 
 // External Errors(Display to Users)
 const INTERNAL_SERVER_ERROR_MESSAGE = "<script>alert('Internal Server Error');</script>"
+const UNAUTHORIZED_ACCESS_MESSAGE = "<script>alert('You're Not Authorized');</script>"
 
 // Internal Errors
 // AUTH
