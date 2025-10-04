@@ -21,7 +21,7 @@ func init() {
 	fmt.Println("[Log] Init Done !!")
 }
 
-func main(){
+func main() {
 	fmt.Println("Hello World")
 	ipAddr := "localhost:3030"
 
