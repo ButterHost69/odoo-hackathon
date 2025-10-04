@@ -277,3 +277,18 @@ func GetSessionTokenByCredentials(email string, password string) string {
 
 	return ""
 }
+
+func GetCompanyIDByAdminEmail(adminEmail string) (int, error) {
+	query := "SELECT company_id FROM company WHERE admin_email = $1"
+
+	var companyID int
+
+	err := db.QueryRow(query, adminEmail).Scan(&companyID)
+	if err != nil {
+		fmt.Printf("[db.GetCompanyIDByAdminEmail] Error fetching ID for admin '%s': %v\n", adminEmail, err)
+		return 0, err
+	}
+
+	fmt.Printf("[LOG] [db.GetCompanyIDByAdminEmail] Found company_id %d for admin '%s'\n", companyID, adminEmail)
+	return companyID, nil
+}
