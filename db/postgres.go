@@ -238,3 +238,22 @@ func InsertNewApprovalStatus(expenseID int, managerEmail, status string, approva
     fmt.Println("[LOG] [db.InsertNewApprovalStatus] Added New Approval Status For Expense ID: ", expenseID)
     return nil
 }
+
+func GetPasswordByEmailFromAuth(email string) string {
+    query := "SELECT password FROM auth WHERE email = $1"
+
+    var password string
+
+    err := db.QueryRow(query, email).Scan(&password)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            fmt.Printf("[db.GetPasswordByEmailFromAuth] No record found for email: %s\n", email)
+        } else {
+            fmt.Printf("[db.GetPasswordByEmailFromAuth] Error Occurred: %s\n", err.Error())
+        }
+        return ""
+    }
+
+    fmt.Printf("[LOG] [db.GetPasswordByEmailFromAuth] Fetched password for email: %s\n", email)
+    return password
+}
