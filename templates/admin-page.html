@@ -103,13 +103,14 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200" id="users-table-body">
+                                {{ range .}}
                                 <tr class="hover:bg-blue-50 cursor-pointer transition-colors"
-                                    onclick="openUserDetails('lindsay-walton')">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Lindsay Walton</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">User</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">John Smith</td>
+                                    onclick="openUserDetails('{{ .Name }}')">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ .Name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ .Role }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ .ManagerName }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        lindsay.walton@example.com</td>
+                                        {{ .Email }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                                         <button
                                             onclick="event.stopPropagation(); sendPassword('lindsay.walton@example.com')"
@@ -117,7 +118,8 @@
                                             Password</button>
                                     </td>
                                 </tr>
-                                <tr class="hover:bg-blue-50 cursor-pointer transition-colors"
+                                {{ end }}
+                                <!-- <tr class="hover:bg-blue-50 cursor-pointer transition-colors"
                                     onclick="openUserDetails('michael-chen')">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Michael Chen</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Role</td>
@@ -172,7 +174,7 @@
                                             class="text-indigo-600 hover:text-indigo-900 font-medium">Send
                                             Password</button>
                                     </td>
-                                </tr>
+                                </tr> -->
                             </tbody>
                         </table>
                     </div>
