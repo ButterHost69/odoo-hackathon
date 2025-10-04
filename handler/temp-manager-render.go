@@ -48,23 +48,33 @@ func RenderManagerPage(ctx *gin.Context, email string) {
 		}
 
 		expense_info_list = append(expense_info_list, ManagerView{
-			ExpenseID: expense_id,
-			EmployeeEmail: email,
-			Description: expense_info.Description,
-			ExpenseDate: expense_info.ExpenseDate,
-			Category: expense_info.Category,
-			Amount: expense_info.Amount,
-			Remarks: "N",
-			Client_Status: expense_info.Status,
+			ExpenseID:      expense_id,
+			EmployeeEmail:  email,
+			Description:    expense_info.Description,
+			ExpenseDate:    expense_info.ExpenseDate,
+			Category:       expense_info.Category,
+			Amount:         expense_info.Amount,
+			Remarks:        "N",
+			Client_Status:  expense_info.Status,
 			Manager_Status: app_status.Status,
 		})
 	}
 
 	ctx.Header("Content-Type", "text/html")
 	tmpl := template.Must(template.ParseFiles("./templates/manager-page.html"))
-	err = tmpl.Execute(ctx.Writer, expense_info_list)
-	if err != nil {
-		log.Println("[handler.RenderUserPage] Error while parsing manager-page.html: ", err)
-		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
-	}
+
+	// ...
+    data := map[string]interface {
+    }{
+        "ManagerEmail": email,
+        "Expenses":     expense_info_list,
+    }
+    
+    // Only execute the template ONCE with the correct data struct.
+    err = tmpl.Execute(ctx.Writer, data) 
+    if err != nil {
+        log.Println("[handler.RenderUserPage] Error while parsing manager-page.html: ", err)
+        fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+    }
 }
+

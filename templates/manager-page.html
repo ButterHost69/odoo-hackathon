@@ -1,24 +1,32 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html class="h-full bg-gray-50">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Manager Expense Approvals</title>
 </head>
 
 <body class="h-full">
 
-    <div id="main-content-div" class="flex-1 flex flex-col overflow-hidden">
-        <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h1 class="text-2xl font-semibold text-gray-900">Manager name - Expense Approvals</h1>
-            <button onclick="logout()"
-                class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
-                Logout
-            </button>
-        </div>
+    <div class="min-h-full">
+        <header class="bg-white shadow-sm">
+            <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900">
+                    Expense Approvals
+                </h1>
+                <form action="/logout" method="POST">
+                    <button type="submit"
+                        class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </header>
 
-        <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
-            <div class="max-w-7xl mx-auto">
+        <main class="py-6">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -29,187 +37,52 @@
                                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Category</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Request Status</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Total Amount</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Action</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="expenses-table-body">
-                            <tr id="expense-1" class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">Client Dinner
-                                    Meeting - Q4 Planning</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Lindsay Walton</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Meals & Entertainment</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <span
-                                        class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">Pending
-                                        Approval</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">$255.50</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <button onclick="handleApproval('expense-1', 'Accepted')"
-                                        class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
-                                    <button onclick="handleApproval('expense-1', 'Rejected')"
-                                        class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
-                                </td>
-                            </tr>
-                            <tr id="expense-2" class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">Software
-                                    Subscription - Figma</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Michael Chen</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Software</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <span
-                                        class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">Pending
-                                        Approval</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">$180.00</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <button onclick="handleApproval('expense-2', 'Accepted')"
-                                        class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
-                                    <button onclick="handleApproval('expense-2', 'Rejected')"
-                                        class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
-                                </td>
-                            </tr>
-                            <tr id="expense-3" class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">Team Travel to
-                                    New York Summit</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Alex Rodriguez</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Travel</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <span
-                                        class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">Pending
-                                        Approval</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">$1,450.00</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <button onclick="handleApproval('expense-3', 'Accepted')"
-                                        class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
-                                    <button onclick="handleApproval('expense-3', 'Rejected')"
-                                        class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
-                                </td>
-                            </tr>
-                            <tr id="expense-4" class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">Office
-                                    Supplies (Paper, Pens)</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Sophie Taylor</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Office Supplies</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <span
-                                        class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">Pending
-                                        Approval</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">$85.25</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <button onclick="handleApproval('expense-4', 'Accepted')"
-                                        class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
-                                    <button onclick="handleApproval('expense-4', 'Rejected')"
-                                        class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        /**
-         * Handles the approval action (Accept or Reject) for an expense.
-         */
-        function handleApproval(expenseId, status) {
-            const row = document.getElementById(expenseId);
-            if (!row) return;
-
-            const statusCell = row.cells[3];
-            const actionCell = row.cells[5];
-
-            actionCell.innerHTML = ''; // Clear the action buttons
-
-            if (status === 'Accepted') {
-                statusCell.innerHTML = `<span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-green-100 text-green-800">Approved</span>`;
-                alert(`Expense ${expenseId} has been approved.`);
-            } else if (status === 'Rejected') {
-                statusCell.innerHTML = `<span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-red-100 text-red-800">Rejected</span>`;
-                alert(`Expense ${expenseId} has been rejected.`);
-            }
-        }
-
-        /**
-         * Handles the logout action.
-         */
-        function logout() {
-            console.log('User clicked logout.');
-            alert('You have been logged out.');
-            // In a real application, you would redirect to a login page:
-            // window.location.href = '/login.html';
-        }
-    </script>
-
-</body>
-
-</html> -->
-
-
-<!DOCTYPE html>
-<html class="h-full bg-gray-50">
-
-<head>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>Manager Expense Approvals</title>
-</head>
-
-<body class="h-full">
-
-    <div id="main-content-div" class="flex-1 flex flex-col overflow-hidden">
-        <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h1 class="text-2xl font-semibold text-gray-900">Expense Approvals</h1>
-            <button onclick="logout()"
-                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
-                Logout
-            </button>
-        </div>
-
-        <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
-            <div class="max-w-7xl mx-auto">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Approval Subject</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Request Owner</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Category</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Request Status</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Total Amount</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="expenses-table-body">
-                            {{/* Loop over the slice of Expense structs passed from the Go handler */}}
-                            {{ range . }}
-                            <tr id="expense-{{ .ExpenseID }}" class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ .Description }}</td>
+                            {{/* 1. Correctly range over the .Expenses slice */}}
+                            {{ range .Expenses }}
+                            <tr id="expense-{{ .ExpenseID }}" class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{
+                                    .Description }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ .EmployeeEmail }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ .Category }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    {{/* Conditionally style the status badge */}}
+
+                                    {{/* 2. Correctly use the .Manager_Status field from your Go struct */}}
                                     {{ if eq .Manager_Status "pending" }}
-                                    <span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">Pending Approval</span>
+                                    <span
+                                        class="px-2.5 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending
+                                        Approval</span>
                                     {{ else if eq .Manager_Status "approved" }}
-                                    <span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-green-100 text-green-800">Approved</span>
+                                    <span
+                                        class="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
                                     {{ else if eq .Manager_Status "rejected" }}
-                                    <span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-red-100 text-red-800">Rejected</span>
+                                    <span
+                                        class="px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>
                                     {{ else }}
-                                    <span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-gray-100 text-gray-800">{{ .Manager_Status }}</span>
+                                    <span
+                                        class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">{{
+                                        .Manager_Status }}</span>
                                     {{ end }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">${{ .Amount }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    {{/* Only show buttons if the status is "Pending" */}}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">${{ .Amount }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+
+                                    {{/* This also needs to use .Manager_Status */}}
                                     {{ if eq .Manager_Status "pending" }}
-                                    <button onclick="handleApproval('{{ .ExpenseID }}', 'Approved')"
-                                        class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
-                                    <button onclick="handleApproval('{{ .ExpenseID }}', 'Rejected')"
-                                        class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
+                                    <div class="flex justify-center space-x-2">
+                                        <form action="/approval/{{ $.ManagerEmail }}/{{ .ExpenseID }}/1" method="POST">
+                                            <button type="submit"
+                                                class="bg-green-100 text-green-800 hover:bg-green-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Accept</button>
+                                        </form>
+                                        <form action="/approval/{{ $.ManagerEmail }}/{{ .ExpenseID }}/0" method="POST">
+                                            <button type="submit"
+                                                class="bg-red-100 text-red-800 hover:bg-red-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">Reject</button>
+                                        </form>
+                                    </div>
                                     {{ end }}
                                 </td>
                             </tr>
@@ -221,57 +94,7 @@
         </main>
     </div>
 
-    <script>
-        /**
-         * NOTE: This function only updates the UI. In a real application, you would
-         * make a fetch() call to a backend API endpoint to persist the change.
-         */
-        function handleApproval(expenseId, newStatus) {
-            // In a real app, you would send this to the server:
-            // fetch(`/api/expense/${expenseId}/status`, { 
-            //   method: 'POST', 
-            //   body: JSON.stringify({ status: newStatus }),
-            //   headers: {'Content-Type': 'application/json'}
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //    console.log('Success:', data);
-            //    // Only update UI on success
-            //    updateUIAfterApproval(expenseId, newStatus);
-            // })
-            // .catch(error => console.error('Error:', error));
-
-            // For this example, we'll just update the UI directly.
-            updateUIAfterApproval(expenseId, newStatus);
-            alert(`Expense #${expenseId} has been marked as ${newStatus}.`);
-        }
-
-        function updateUIAfterApproval(expenseId, status) {
-            const row = document.getElementById(`expense-${expenseId}`);
-            if (!row) return;
-
-            const statusCell = row.cells[3];
-            const actionCell = row.cells[5];
-
-            // Clear the action buttons
-            actionCell.innerHTML = '';
-
-            // Update the status cell with the new badge
-            if (status === 'Approved') {
-                statusCell.innerHTML = `<span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-green-100 text-green-800">Approved</span>`;
-            } else if (status === 'Rejected') {
-                statusCell.innerHTML = `<span class="px-2.5 py-1 text-xs font-semibold leading-5 rounded-full bg-red-100 text-red-800">Rejected</span>`;
-            }
-        }
-
-
-        function logout() {
-            console.log('User clicked logout.');
-            alert('You have been logged out.');
-            // In a real application, redirect to a login page:
-            // window.location.href = '/login';
-        }
-    </script>
+    {{/* The 'handleApproval' javascript is no longer needed because we are using forms */}}
 
 </body>
 

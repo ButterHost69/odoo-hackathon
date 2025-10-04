@@ -3,6 +3,8 @@ package handler
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"strconv"
 
 	"github.com/ButterHost69/odoo-hackathon/db"
 	"github.com/ButterHost69/odoo-hackathon/errs"
@@ -151,4 +153,45 @@ func CreateUser(ctx *gin.Context) {
 	}
 
 	RenderAdminPage(ctx, users)
+}
+
+
+func ApproveExpense(ctx *gin.Context) {
+	managerEmail := ctx.Param("managerEmail")
+	expenseIDStr := ctx.Param("expenseID")
+	statusStr := ctx.Param("status")
+
+	expenseID, err := strconv.Atoi(expenseIDStr)
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "Invalid Expense ID: must be a number.")
+		return
+	}
+
+	status, err := strconv.Atoi(statusStr)
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "Invalid Status: must be a number.")
+		return
+	}
+
+	fmt.Printf("Processing approval...\n")
+	fmt.Printf(" -> Manager Email: %s\n", managerEmail)
+	fmt.Printf(" -> Expense ID: %d\n", expenseID)
+	fmt.Printf(" -> Status (0=Reject, 1=Accept): %d\n", status)
+
+	str_status := ""
+	if status == 1 {
+		str_status = "approved"
+
+	} else {
+		str_status = "rejected"
+	}
+
+	err = db.UpdateApprovalStatus(expenseID, managerEmail, str_status)
+	if err != nil {
+		log.Println("[handler.Login] Error while Updating Session Token:", err)
+		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+		return
+	}
+
+	RenderManagerPage(ctx, managerEmail)
 }

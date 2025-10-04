@@ -34,5 +34,8 @@ func main() {
 	r.POST("/register", handler.CreateCompany)
 	r.POST("/login", handler.Login)
 
+	r.POST("/approval/:managerEmail/:expenseID/:status", handler.ApproveExpense)
+
+
 	r.Run(ipAddr)
 }

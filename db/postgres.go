@@ -591,3 +591,33 @@ func GetApprovalStatusByExpenseID(expenseID int) (ApprovalStatus, error) {
     // On success, return the populated struct and a nil error.
     return status, nil
 }
+
+func UpdateApprovalStatus(expenseID int, manager_email string, status string) error {
+	query := `UPDATE approval_status
+              SET status = $1, approval_timestamp = $2
+              WHERE expense_id = $3 AND manager_email = $4`
+
+    currentTime := time.Now()
+
+    // Use db.Exec for operations that don't return rows.
+    result, err := db.Exec(query, status, currentTime, expenseID, manager_email)
+    if err != nil {
+        fmt.Printf("[db.UpdateApprovalStatus] Error executing update: %v\n", err)
+        return err
+    }
+
+    // Check if any rows were actually modified by the query.
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        fmt.Printf("[db.UpdateApprovalStatus] Error checking rows affected: %v\n", err)
+        return err
+    }
+
+    // If no rows are affected, it means no record matched the WHERE clause.
+    if rowsAffected == 0 {
+        return fmt.Errorf("no approval status found for expense ID %d and manager %s", expenseID, manager_email)
+    }
+
+    fmt.Printf("[LOG] [db.UpdateApprovalStatus] Successfully updated status for expense ID %d\n", expenseID)
+    return nil
+}
