@@ -38,6 +38,8 @@ INSERT INTO user_account (email, name, role, manager_email, manager_name, compan
 ('konark@openai.com', 'Konark', 'manager', 'admin@openai.com', 'Admin', 2);
 
 INSERT INTO auth (email, password, session_token) VALUES
+('admin@nemu.com', 'Admin', 'token454'),
+('admin@openai.com', 'Admin', 'token234'),
 ('palash@nemu.com', 'pass123', 'token123'),
 ('prachin@nemu.com', 'pass456', 'token456'),
 ('parth@nemu.com', 'pass789', 'token789'),

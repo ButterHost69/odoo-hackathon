@@ -34,7 +34,7 @@ func CreateCompany(ctx *gin.Context) {
 		return
 	}
 
-	err = db.InsertNewUserAccount(email, company_name+" Admin", "Admin", "", "", company_id)
+	err = db.InsertNewUserAccount(email, company_name+" Admin", "admin", "", "", company_id)
 	if err != nil {
 		log.Println("[handler.CreateCompany] Error while Inserting New User:", err)
 		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
@@ -48,7 +48,7 @@ func CreateCompany(ctx *gin.Context) {
 		return
 	}
 
-	RenderAdminPage(ctx)
+	RenderAuthPage(ctx, "")
 }
 
 func Login(ctx *gin.Context) {
@@ -70,6 +70,22 @@ func Login(ctx *gin.Context) {
 		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
 		return
 	}
+
+	new_token, err := db.GenerateToken()
+	if err != nil {
+		log.Println("[handler.Login] Error while Generating New Token:", err)
+		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+		return
+	}
+
+	err = db.UpdateSessionTokenInAuthDB(email, new_token)
+	if err != nil {
+		log.Println("[handler.Login] Error while Updating Session Token:", err)
+		fmt.Fprint(ctx.Writer, errs.INTERNAL_SERVER_ERROR_MESSAGE)
+		return
+	}
+
+	utils.SetSessionTokenInCookie(ctx.Writer, new_token)
 
 	if user.Role == "admin" {
 		RenderAdminPage(ctx)
