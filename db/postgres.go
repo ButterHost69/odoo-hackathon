@@ -332,3 +332,56 @@ func GetRulesUsingUserEmail(email string) (Rules, error) {
 	fmt.Printf("[LOG] [db.GetRulesUsingUserEmail] Successfully fetched rules for email: %s\n", email)
 	return rules, nil
 }
+
+func GetAllManagerListUsingCompanyID(company_id int) ([]ManagerInfo, error) {
+	query := "SELECT managers FROM company WHERE company_id = $1"
+
+	var managers ManagerInfoSlice
+
+	// db.QueryRow is used because we expect only one row (the company record).
+	// The Scan method will use our custom ManagerInfoSlice.Scan method automatically.
+	err := db.QueryRow(query, company_id).Scan(&managers)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Printf("[db.GetAllManagerListUsingCompanyID] No company found for ID: %d\n", company_id)
+		} else {
+			fmt.Printf("[db.GetAllManagerListUsingCompanyID] Error scanning managers list: %v\n", err)
+		}
+		// On any error, return a nil slice and the error itself.
+		return nil, err
+	}
+
+	fmt.Printf("[LOG] [db.GetAllManagerListUsingCompanyID] Fetched %d managers for company ID %d\n", len(managers), company_id)
+
+	// On success, return the populated slice and a nil error.
+	return managers, nil
+}
+
+func UpdateManagerListInCompanyUsingCompanyID(company_id int, managers []ManagerInfo) error {
+
+	query := "UPDATE company SET managers = $1 WHERE company_id = $2"
+
+	// db.Exec is used for statements that don't return rows (UPDATE, INSERT, DELETE).
+	// We wrap the 'managers' slice with pq.Array() to handle the conversion.
+	result, err := db.Exec(query, pq.Array(managers), company_id)
+	if err != nil {
+		fmt.Printf("[db.UpdateManagerList] Error executing update: %v\n", err)
+		return err
+	}
+
+	// It's crucial to check if any rows were actually updated.
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Printf("[db.UpdateManagerList] Error checking rows affected: %v\n", err)
+		return err
+	}
+
+	// If no rows are affected, it means no company with the given ID was found.
+	if rowsAffected == 0 {
+		return fmt.Errorf("no company found with ID %d to update", company_id)
+	}
+
+	fmt.Printf("[LOG] [db.UpdateManagerList] Successfully updated managers for company ID: %d\n", company_id)
+	return nil
+
+}
